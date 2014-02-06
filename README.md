@@ -1,4 +1,4 @@
 liquiunit
 =========
 
-Tools for Liquibase-based unit testing
+Tools for Liquibase-based unit testing.
