@@ -188,9 +188,9 @@ public class H2Rule extends ExternalResource implements DataSource {
    *
    * @see DataSource#getConnection(String, String)
    *
-   * @see the <a
-   * href="http://www.h2database.com/html/features.html#execute_sql_on_connection">Execute
-   * SQL on Connection</a> section of the H2 documentation
+   * @see <a
+   * href="http://www.h2database.com/html/features.html#execute_sql_on_connection">the
+   * Execute SQL on Connection section of the H2 documentation</a>
    */
   public H2Rule(final String username, final String password, final String initSql) {
     super();
@@ -426,8 +426,6 @@ public class H2Rule extends ExternalResource implements DataSource {
    * com.edugility}".
    *
    * @return a {@link Logger}; never {@code null}
-   *
-   * @see DataSource#getParentLogger()
    */
   // @Override // when Java 7 is a minimal requirement
   public Logger getParentLogger() {
@@ -508,7 +506,7 @@ public class H2Rule extends ExternalResource implements DataSource {
    *
    * @see DriverManager#getConnection(String, String, String)
    *
-   * @see DriverManager#getConnection()
+   * @see DriverManager#getConnection(String)
    *
    * @see <a
    * href="http://h2database.com/html/features.html#in_memory_databases">The
