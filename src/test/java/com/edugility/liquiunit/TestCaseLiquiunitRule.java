@@ -37,17 +37,15 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-public class TestCaseLiquiunitRule3 {
+public class TestCaseLiquiunitRule {
 
   @Rule
   public TestRule rule;
 
-  public TestCaseLiquiunitRule3() {
+  public TestCaseLiquiunitRule() {
     super();
     final H2Rule h2 = new H2Rule();
-    System.out.println("*** hi there");
     final LiquiunitRule liquibase = new LiquiunitRule(h2);
-    liquibase.setChangeLogResourceName("changelog.xml");
     this.rule = RuleChain.outerRule(h2).around(liquibase);
   }
 
