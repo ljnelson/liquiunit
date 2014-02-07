@@ -266,12 +266,10 @@ public class H2Rule extends ExternalResource implements DataSource {
       try {
         statement.execute(backup);
       } finally {
-        if (statement != null) {
-          try {
-            statement.close();
-          } catch (final SQLException neverMind) {
-            
-          }
+        try {
+          statement.close();
+        } catch (final SQLException neverMind) {
+          // ignore on purpose
         }
       }
     }

@@ -1,0 +1,16 @@
+<!-- -*- markdown -*- -->
+# Introduction
+
+Welcome to the `${project.artifactId}` project.
+`${project.artifactId}` provides classes and interfaces to help with
+setting up and tearing down [Liquibase][1]-managed databases at
+[JUnit][2] test time.
+
+# API Documentation
+
+The API is fully documented.  Please see the [API documentation][3] to
+get started.
+
+[1]: http://www.liquibase.org/
+[2]: http://www.junit.org/
+[3]: apidocs/index.html
