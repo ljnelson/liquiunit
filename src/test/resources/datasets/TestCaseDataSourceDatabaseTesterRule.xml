@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmldataset [
+<!ELEMENT dataset (table+)>
+<!ELEMENT table (column*, row*)>
+<!ATTLIST table name CDATA #REQUIRED>
+<!ELEMENT column (#PCDATA)>
+<!ELEMENT row (value | null | none)*>
+<!ELEMENT value (#PCDATA)>
+<!ELEMENT null EMPTY>
+<!ELEMENT none EMPTY>
+]>
+<dataset>
+  <table name="MESSAGE">
+    <column>ID</column>
+    <column>TEXT</column>
+    <row>
+      <value>1</value>
+      <value>Hello, world!</value>
+    </row>
+  </table>
+</dataset>

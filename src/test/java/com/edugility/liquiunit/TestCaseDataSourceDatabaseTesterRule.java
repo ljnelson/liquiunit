@@ -1,6 +1,6 @@
 /* -*- mode: Java; c-basic-offset: 2; indent-tabs-mode: nil; coding: utf-8-unix -*-
  *
- * Copyright (c) 2013 Edugility LLC.
+ * Copyright (c) 2013-2014 Edugility LLC.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -27,6 +27,8 @@
  */
 package com.edugility.liquiunit;
 
+import org.dbunit.ext.h2.H2DataTypeFactory;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -37,14 +39,21 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-public class TestCaseH2Rule {
+public class TestCaseDataSourceDatabaseTesterRule {
+
+  static {
+    liquibase.logging.LogFactory.getInstance().getLog("liquiunit").setLogLevel("debug");
+  }
 
   @Rule
-  public H2Rule rule;
+  public final TestRule rule;
 
-  public TestCaseH2Rule() {
+  public TestCaseDataSourceDatabaseTesterRule() {
     super();
-    this.rule = new H2Rule();
+    final H2Rule h2 = new H2Rule();
+    final LiquiunitRule liquibase = new LiquiunitRule(h2);
+    final DataSourceDatabaseTesterRule dbUnit = new DataSourceDatabaseTesterRule(h2, new H2DataTypeFactory());
+    this.rule = RuleChain.outerRule(h2).around(liquibase).around(dbUnit);
   }
 
   @Test

@@ -30,6 +30,41 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <version>2.4.9</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.6</version>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mattbertolini</groupId>
+      <artifactId>liquibase-slf4j</artifactId>
+      <version>1.2.1</version>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>compile</scope>
@@ -71,6 +106,10 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <systemPropertyVariables>
+              <!--
+              <org.slf4j.simpleLogger.log.liquiunit>debug</org.slf4j.simpleLogger.log.liquiunit>
+              <org.slf4j.simpleLogger.log.org.dbunit>debug</org.slf4j.simpleLogger.log.org.dbunit>
+              -->
               <testEclipseLinkLogging>${testEclipseLinkLogging}</testEclipseLinkLogging>
               <testDatabaseConnectionURL>${testDatabaseConnectionURL}</testDatabaseConnectionURL>
               <testDatabasePassword>${testDatabasePassword}</testDatabasePassword>
@@ -114,7 +153,7 @@
     <maven.compiler.target>1.6</maven.compiler.target>
 
     <!-- maven-javadoc-plugin properties -->
-    <links>http://www.liquibase.org/javadoc/,http://junit.org/javadoc/4.10/</links>
+    <links>http://www.liquibase.org/javadoc/,http://junit.org/javadoc/4.10/,http://www.dbunit.org/apidocs/</links>
 
   </properties>
 

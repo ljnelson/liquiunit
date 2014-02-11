@@ -47,6 +47,7 @@ import liquibase.database.DatabaseFactory;
 
 import liquibase.database.jvm.JdbcConnection;
 
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 
 import liquibase.logging.LogFactory;
@@ -93,38 +94,6 @@ public class LiquiunitRule extends ExternalResource {
   private final DataSource dataSource;
 
   /**
-   * The username supplied to the {@link
-   * DataSource#getConnection(String, String)} invocation.
-   *
-   * <p>This field may be {@code null}.</p>
-   *
-   * @see DataSource#getConnection(String, String)
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   *
-   * @see #setUsername(String)
-   *
-   * @see #getUsername()
-   */
-  private String username;
-
-  /**
-   * The password supplied to the {@link
-   * DataSource#getConnection(String, String)} invocation.
-   *
-   * <p>This field may be {@code null}.</p>
-   *
-   * @see DataSource#getConnection(String, String)
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   *
-   * @see #setPassword(String)
-   *
-   * @see #getPassword()
-   */
-  private String password;
-
-  /**
    * The classpath resource name of the Liquibase <a
    * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
    * to use.
@@ -140,21 +109,6 @@ public class LiquiunitRule extends ExternalResource {
   private String changeLogResourceName;
 
   /**
-   * The {@link Connection} {@linkplain
-   * DataSource#getConnection(String, String) acquired} from the
-   * {@link DataSource} supplied at {@linkplain
-   * #LiquiunitRule(DataSource, String, String, String[]) construction
-   * time}.
-   *
-   * <p>This field may be {@code null}.</p>
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   *
-   * @see DataSource#getConnection(String, String)
-   */
-  private Connection c;
-
-  /**
    * The {@link Liquibase} instance created by the {@link
    * #createLiquibase(Database)} method.
    *
@@ -168,7 +122,7 @@ public class LiquiunitRule extends ExternalResource {
 
   /**
    * An {@link Iterable} of Liquibase contexts supplied at {@linkplain
-   * #LiquiunitRule(DataSource, String, String, String[]) construction
+   * #LiquiunitRule(DataSource, String[]) construction
    * time} that will be converted to a comma-separated {@link String}
    * and supplied to the {@linkplain Liquibase#update(String)} method.
    *
@@ -188,7 +142,7 @@ public class LiquiunitRule extends ExternalResource {
    * Database) constructor}.
    *
    * <p>This field is initialized by the {@link
-   * #LiquiunitRule(DataSource, String, String, String[])} constructor
+   * #LiquiunitRule(DataSource, String[])} constructor
    * to be a {@link CompositeResourceAccessor} that delegates first to
    * a {@link URLResourceAccessor} and then to a {@link
    * FileSystemResourceAccessor}.</p>
@@ -199,32 +153,13 @@ public class LiquiunitRule extends ExternalResource {
    *
    * @see #setResourceAccessor(ResourceAccessor)
    *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
+   * @see #LiquiunitRule(DataSource, String[])
    *
    * @see ResourceAccessor
    *
    * @see Liquibase#Liquibase(String, ResourceAccessor, Database)
    */
   private ResourceAccessor resourceAccessor;
-
-  /**
-   * Creates a new {@link LiquiunitRule}.
-   *
-   * <p>This constructor calls the {@link #LiquiunitRule(DataSource,
-   * String, String, String[])} constructor passing the supplied
-   * {@link DataSource}, "{@code sa}" and "" (the {@linkplain
-   * String#isEmpty() empty} {@link String}) as parameter values.</p>
-   *
-   * @param dataSource the {@link DataSource} to use to {@linkplain
-   * DataSource#getConnection(String, String) acquire a
-   * <code>Connection</code>}; may be {@code null} in which case this
-   * {@link LiquiunitRule} will effectively do nothing
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   */
-  public LiquiunitRule(final DataSource dataSource) {
-    this(dataSource, "sa", "");
-  }
 
   /**
    * Creates a new {@link LiquiunitRule}.
@@ -240,18 +175,14 @@ public class LiquiunitRule extends ExternalResource {
    * <blockquote><pre>new CompositeResourceAccessor(new URLResourceAccessor(Thread.currentThread().getContextClassLoader()), 
    *                              new FileSystemResourceAccessor(System.getProperty("user.dir")))</pre></blockquote>
    *
+   * <p>Consider passing an {@link H2Rule} as the value for the {@code
+   * dataSource} parameter for thread-safe parallel in-memory database
+   * testing scenarios.</p>
+   *
    * @param dataSource the {@link DataSource} to use to {@linkplain
    * DataSource#getConnection(String, String) acquire a
    * <code>Connection</code>}; may be {@code null} in which case this
    * {@link LiquiunitRule} will effectively do nothing
-   *
-   * @param username the username to use during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}; may be {@code null}
-   *
-   * @param password the password to use during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}; may be {@code null}
    *
    * @param contexts a variable number of Liquibase <a
    * href="http://www.liquibase.org/documentation/contexts.html">contexts</a>;
@@ -259,100 +190,24 @@ public class LiquiunitRule extends ExternalResource {
    *
    * @see DataSource#getConnection(String, String)
    *
-   * @see #setUsername(String)
-   *
-   * @see #setPassword(String)
-   *
    * @see #setContexts(Iterable)
    *
    * @see #setResourceAccessor(ResourceAccessor)
    *
    * @see #setChangeLogResourceName(String)
    */
-  public LiquiunitRule(final DataSource dataSource, final String username, final String password, final String... contexts) {
+  public LiquiunitRule(final DataSource dataSource, final String... contexts) {
     super();
     this.logger = LogFactory.getInstance().getLog("liquiunit");
     assert this.logger != null;
+    this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + Arrays.asList(contexts));
     this.dataSource = dataSource;
-    this.setUsername(username);
-    this.setPassword(password);
     this.setChangeLogResourceName("changelog.xml");
     this.setResourceAccessor(new CompositeResourceAccessor(new URLResourceAccessor(Thread.currentThread().getContextClassLoader()), new FileSystemResourceAccessor(System.getProperty("user.dir"))));
     if (contexts != null && contexts.length > 0) {
       this.setContexts(Arrays.asList(contexts));
     }
-  }
-
-  /**
-   * Returns the username used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}.
-   *
-   * <p>This method may return {@code null}.</p>
-   *
-   * @return the username used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}, or {@code null}
-   *
-   * @see #setUsername(String)
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   */
-  public String getUsername() {
-    return this.username;
-  }
-
-  /**
-   * Sets the username used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}.
-   *
-   * @param username the username to be used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}; may be {@code null}
-   *
-   * @see #getUsername()
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   */
-  public void setUsername(final String username) {
-    this.username = username;
-  }
-
-  /**
-   * Returns the password used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}.
-   *
-   * <p>This method may return {@code null}.</p>
-   *
-   * @return the password used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}, or {@code null}
-   *
-   * @see #setPassword(String)
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   */
-  public String getPassword() {
-    return this.password;
-  }
-
-  /**
-   * Sets the password used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}.
-   *
-   * @param password the password to be used during {@linkplain
-   * DataSource#getConnection(String, String) <code>Connection</code>
-   * acquisition}; may be {@code null}
-   *
-   * @see #getPassword()
-   *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
-   */
-  public void setPassword(final String password) {
-    this.password = password;
+    this.logger.debug("Exiting LiquiunitRule(DataSource, String[])");
   }
 
   /**
@@ -365,8 +220,8 @@ public class LiquiunitRule extends ExternalResource {
    *
    * <p>This method may return {@code null}.</p>
    *
-   * <p>At {@linkplain #LiquiunitRule(DataSource, String, String,
-   * String[]) construction time}, this property is set to "{@code
+   * <p>At {@linkplain #LiquiunitRule(DataSource, String[])
+   * construction time}, this property is set to "{@code
    * changelog.xml}".</p>
    *
    * @return the {@linkplain ClassLoader#getResource(String) classpath
@@ -379,10 +234,13 @@ public class LiquiunitRule extends ExternalResource {
    *
    * @see #setChangeLogResourceName(String)
    *
-   * @see #LiquiunitRule(DataSource, String, String, String[])
+   * @see #LiquiunitRule(DataSource, String[])
    */
   public String getChangeLogResourceName() {
+    this.logger.debug("Entering getChangeLogResourceName()");
+    this.logger.debug("Exiting getChangeLogResourceName(); returning: " + this.changeLogResourceName);
     return this.changeLogResourceName;
+
   }
 
   /**
@@ -404,7 +262,9 @@ public class LiquiunitRule extends ExternalResource {
    * @see #getChangeLogResourceName()
    */
   public void setChangeLogResourceName(final String name) {
+    this.logger.debug("Entering setChangeLogResourceName(String); parameters: name = " + name);
     this.changeLogResourceName = name;
+    this.logger.debug("Exiting setChangeLogResourceName(String)");
   }
 
   /**
@@ -422,6 +282,8 @@ public class LiquiunitRule extends ExternalResource {
    * @see Liquibase#update(String)
    */
   public Iterable<? extends String> getContexts() {
+    this.logger.debug("Entering getContexts()");
+    this.logger.debug("Exiting getContexts(); returning: " + this.contexts);
     return this.contexts;
   }
 
@@ -442,7 +304,9 @@ public class LiquiunitRule extends ExternalResource {
    * @see Liquibase#update(String)
    */
   public void setContexts(final Iterable<? extends String> contexts) {
+    this.logger.debug("Entering setContexts(Iterable); parameters: contexts = " + contexts);
     this.contexts = contexts;
+    this.logger.debug("Exiting setContexts(Iterable)");
   }
 
   /**
@@ -461,6 +325,7 @@ public class LiquiunitRule extends ExternalResource {
    * @see Liquibase#update(String)
    */
   private final String getContextsString() {
+    this.logger.debug("Entering getContextsString()");
     final StringBuilder sb;
     final Iterable<? extends String> contexts = this.getContexts();
     if (contexts == null) {
@@ -489,6 +354,7 @@ public class LiquiunitRule extends ExternalResource {
     } else {
       returnValue = sb.toString();
     }
+    this.logger.debug("Exiting getContextsString(); returning: " + returnValue);
     return returnValue;
   }
 
@@ -520,30 +386,41 @@ public class LiquiunitRule extends ExternalResource {
    */
   @Override
   protected void before() throws LiquibaseException, SQLException {
+    this.logger.debug("Entering before()");
     if (this.dataSource != null) {
 
-      this.c = this.dataSource.getConnection(this.getUsername(), this.getPassword());
-      if (this.c == null) {
+      final Connection c = this.dataSource.getConnection();
+      if (c == null) {
         throw new IllegalStateException("this.dataSource.getConnection()", new NullPointerException("this.dataSource.getConnection()"));
-      } else if (!this.c.isValid(0)) {
-        throw new IllegalStateException("!this.c.isValid()");
+      } else if (!c.isValid(0)) {
+        throw new IllegalStateException("!c.isValid()");
       }
-
-      final DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
-      assert databaseFactory != null;
-      final Database database = databaseFactory.findCorrectDatabaseImplementation(new JdbcConnection(this.c));
-
-      this.liquibase = this.createLiquibase(database);
-      if (this.liquibase != null && this.shouldUpdate(liquibase)) {
+      final JdbcConnection jc = new JdbcConnection(c);
+      try {
+        final DatabaseFactory databaseFactory = DatabaseFactory.getInstance();
+        assert databaseFactory != null;
+        final Database database = databaseFactory.findCorrectDatabaseImplementation(jc);
+        
+        this.liquibase = this.createLiquibase(database);
+        if (this.liquibase != null && this.shouldUpdate(liquibase)) {
+          try {
+            this.liquibase.update(this.getContextsString());
+          } finally {
+            this.liquibase.forceReleaseLocks();
+          }
+        }
+      } finally {
         try {
-          this.liquibase.update(this.getContextsString());
-        } finally {
-          this.liquibase.forceReleaseLocks();
+          jc.close();
+        } catch (final DatabaseException ignore) {
+          
         }
       }
-    }
-  }
 
+    }
+    this.logger.debug("Exiting before()");
+  }
+    
   /**
    * Tries to {@linkplain ClassLoader#getResource(String) load} the
    * {@linkplain #getChangeLogResourceName() classpath resource
@@ -568,12 +445,14 @@ public class LiquiunitRule extends ExternalResource {
    * @see #getResourceAccessor()
    */
   protected Liquibase createLiquibase(final Database database) throws LiquibaseException {
+    this.logger.debug("Entering createLiquibase(Database); parameters: database = " + database);
     final Liquibase liquibase;
-    if (changeLogResourceExists()) {
+    if (!changeLogResourceExists()) {
       liquibase = null;
     } else {
       liquibase = new Liquibase(changeLogResourceName, this.getResourceAccessor(), database);
     }
+    this.logger.debug("Exiting createLiquibase(Database); returning: " + liquibase);
     return liquibase;
   }
 
@@ -592,6 +471,7 @@ public class LiquiunitRule extends ExternalResource {
    * @see #getChangeLogResourceName()
    */
   protected boolean changeLogResourceExists() {
+    this.logger.debug("Entering changeLogResourceExists()");
     final boolean returnValue;
     final String changeLogResourceName = this.getChangeLogResourceName();
     if (changeLogResourceName == null) {
@@ -605,8 +485,8 @@ public class LiquiunitRule extends ExternalResource {
         }
       }
       returnValue = cl != null && cl.getResource(changeLogResourceName) != null;
-      this.logger.debug("ChangeLog \"" + changeLogResourceName + "\" exists? " + returnValue);
     }
+    this.logger.debug("Exiting changeLogResourceExists(); returning: " + returnValue);
     return returnValue;
   }
 
@@ -618,9 +498,9 @@ public class LiquiunitRule extends ExternalResource {
    *
    * <p>This method may return {@code null}.</p>
    *
-   * <p>A newly {@linkplain #LiquiunitRule(DataSource, String, String,
-   * String[]) created} {@link LiquiunitRule} will, by default, have a
-   * {@link ResourceAccessor} {@linkplain
+   * <p>A newly {@linkplain #LiquiunitRule(DataSource, String[])
+   * created} {@link LiquiunitRule} will, by default, have a {@link
+   * ResourceAccessor} {@linkplain
    * #setResourceAccessor(ResourceAccessor) initialized} with the
    * following code:</p>
    *
@@ -633,6 +513,8 @@ public class LiquiunitRule extends ExternalResource {
    * @see #setResourceAccessor(ResourceAccessor)
    */
   public ResourceAccessor getResourceAccessor() {
+    this.logger.debug("Entering getResourceAccessor()");
+    this.logger.debug("Exiting getResourceAccessor(); returning: " + this.resourceAccessor);
     return this.resourceAccessor;
   }
 
@@ -648,7 +530,9 @@ public class LiquiunitRule extends ExternalResource {
    * @see #getResourceAccessor()
    */
   public void setResourceAccessor(final ResourceAccessor resourceAccessor) {
+    this.logger.debug("Entering setResourceAccessor(ResourceAccessor); parameters: resourceAccessor = " + resourceAccessor);
     this.resourceAccessor = resourceAccessor;
+    this.logger.debug("Exiting setResourceAccessor(ResourceAccessor)");
   }
 
   /**
@@ -680,6 +564,7 @@ public class LiquiunitRule extends ExternalResource {
    * @see Liquibase#update(String)
    */
   protected boolean shouldUpdate(final Liquibase liquibase) throws LiquibaseException, SQLException {
+    this.logger.debug("Entering shouldUpdate(Liquibase); parameters: liquibase = " + liquibase);
     boolean returnValue = liquibase != null && !"false".equals(System.getProperty(Liquibase.SHOULD_RUN_SYSTEM_PROPERTY));
     if (returnValue) {
       final Database database = liquibase.getDatabase();
@@ -688,29 +573,8 @@ public class LiquiunitRule extends ExternalResource {
         returnValue = !(changeLogHistoryService instanceof StandardChangeLogHistoryService) || !((StandardChangeLogHistoryService)changeLogHistoryService).hasDatabaseChangeLogTable();
       }
     }
+    this.logger.debug("Exiting shouldUpdate(Liquibase); returning: " + returnValue);
     return returnValue;
-  }
-
-  /**
-   * Overrides the {@link ExternalResource#after()} method to
-   * {@linkplain Connection#close() close} the {@link Connection} that
-   * was {@linkplain DataSource#getConnection(String, String)
-   * acquired} during the execution of the {@link #before()} method.
-   *
-   * @see #before()
-   *
-   * @see Connection#close()
-   */
-  @Override
-  protected void after() {
-    if (this.c != null) {
-      try {
-        this.c.close();
-      } catch (final SQLException ignore) {
-        // ignore
-      }
-      this.c = null;
-    }
   }
 
 }

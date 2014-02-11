@@ -34,6 +34,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.WeakHashMap;
+import java.util.Map;
+
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
@@ -48,10 +51,14 @@ import org.junit.runners.model.Statement;
  * An {@link ExternalResource} that is also a {@link DataSource} for
  * in-memory <a href="http://www.h2database.com/">H2</a> {@link
  * Connection}s, with some additional special characteristics suited
- * particularly for in-memory unit testing.
+ * particularly for thread-safe, parallel in-memory unit testing.
  *
  * <p>As with all {@link ExternalResource}s, this class is not safe
  * for use by multiple concurrent threads.</p>
+ *
+ * <p>Instances of this class are often passed to {@linkplain
+ * LiquiunitRule#LiquiunitRule(DataSource, String[])
+ * new} {@link LiquiunitRule} instances.</p>
  *
  * @author <a href="http://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
@@ -112,20 +119,17 @@ public class H2Rule extends ExternalResource implements DataSource {
   private final String initSql;
 
   /**
-   * A potentially enormous {@link String} representing the SQL
-   * required to restore a previously constructed H2 database to its
-   * prior state.
+   * The {@link H2Archive} used to {@linkplain
+   * H2Archive#saveIfEmpty(Description, Connection) save} and
+   * {@linkplain H2Archive#loadUnlessEmpty(Description, Connection)
+   * load} the state of the in-memory H2 database fronted by this
+   * {@link H2Rule}.
    *
    * <p>This field may be {@code null}.</p>
    *
-   * <p>Users of this field <strong>must</strong> synchronize on
-   * {@code H2Rule.class}.</p>
-   *
-   * @see #getBackup()
-   *
-   * @see #backup()
+   * @see #H2Rule(String, String, String, H2Archive)
    */
-  private static volatile String backup;
+  private final H2Archive archive;
 
 
   /*
@@ -140,19 +144,19 @@ public class H2Rule extends ExternalResource implements DataSource {
    * SQL</a>.
    *
    * <p>This constructor calls the {@link #H2Rule(String, String,
-   * String)} constructor.</p>
+   * String, H2Archive)} constructor.</p>
    *
-   * @see #H2Rule(String, String, String)
+   * @see #H2Rule(String, String, String, H2Archive)
    */
   public H2Rule() {
-    this("sa", "", null);
+    this("sa", "", null, new H2Archive());
   }
   
   /**
    * Creates a new {@link H2Rule}.
    *
    * <p>This constructor calls the {@link #H2Rule(String, String,
-   * String)} constructor.</p>
+   * String, H2Archive)} constructor.</p>
    *
    * @param username the username to use when {@linkplain
    * #getConnection(String, String) acquiring} {@link Connection}s;
@@ -162,10 +166,35 @@ public class H2Rule extends ExternalResource implements DataSource {
    * #getConnection(String, String) acquiring} {@link Connection}s;
    * may be {@code null} but in normal usage probably should not be
    *
-   * @see #H2Rule(String, String, String)
+   * @see #H2Rule(String, String, String, H2Archive)
    */
   public H2Rule(final String username, final String password) {
-    this(username, password, null);
+    this(username, password, null, new H2Archive());
+  }
+
+  /**
+   * Creates a new {@link H2Rule}.
+   *
+   * <p>This constructor calls the {@link #H2Rule(String, String,
+   * String, H2Archive)} constructor.</p>
+   *
+   * @param username the username to use when {@linkplain
+   * #getConnection(String, String) acquiring} {@link Connection}s;
+   * may be {@code null}
+   *
+   * @param password the password to use when {@linkplain
+   * #getConnection(String, String) acquiring} {@link Connection}s;
+   * may be {@code null} but in normal usage probably should not be
+   *
+   * @param initSql any <a
+   * href="http://www.h2database.com/html/features.html#execute_sql_on_connection">initialization
+   * SQL</a> to pass to the H2 database upon initial connection; may
+   * be {@code null}
+   *
+   * @see #H2Rule(String, String, String, H2Archive)
+   */
+  public H2Rule(final String username, final String password, final String initSql) {
+    this(username, password, initSql, new H2Archive());
   }
 
   /**
@@ -184,20 +213,34 @@ public class H2Rule extends ExternalResource implements DataSource {
    * SQL</a> to pass to the H2 database upon initial connection; may
    * be {@code null}
    *
+   * @param archive the {@link H2Archive} that can backup and restore
+   * the H2 database; may be {@code null}
+   *
+   * @see #H2Rule(String, String, String, H2Archive)
+   * 
    * @see #getConnection(String, String)
    *
    * @see DataSource#getConnection(String, String)
+   *
+   * @see H2Archive
    *
    * @see <a
    * href="http://www.h2database.com/html/features.html#execute_sql_on_connection">the
    * Execute SQL on Connection section of the H2 documentation</a>
    */
-  public H2Rule(final String username, final String password, final String initSql) {
+  public H2Rule(final String username, final String password, final String initSql, final H2Archive archive) {
     super();
     this.username = username;
     this.password = password;
     this.initSql = initSql;
+    this.archive = archive;
   }
+
+
+  /*
+   * Instance methods.
+   */
+
 
   /**
    * Overrides the {@link ExternalResource#apply(Statement,
@@ -232,16 +275,25 @@ public class H2Rule extends ExternalResource implements DataSource {
   /**
    * {@linkplain #getConnection(String, String) Opens a new
    * <code>Connection</code>} to a thread-private H2 in-memory
-   * database and restores any {@linkplain #getBackup() backup} that
-   * was stored by the {@link #after()} method.
+   * database and restores any state that was stored by the {@link
+   * #after()} method.
    *
    * @see #getConnection(String, String)
    *
-   * @see #getBackup()
+   * @see H2Archive#loadUnlessEmpty(Description, Connection)
    *
    * @see #after()
    *
    * @see ExternalResource#before()
+   *
+   * @exception SQLException if a database error occurs
+   *
+   * @exception IllegalStateException if the {@link
+   * #getConnection(String, String)} method returns a {@code null}
+   * {@link Connection} or if the {@link
+   * #configureConnection(Connection)} method causes the {@link
+   * Connection} to become {@linkplain Connection#isValid(int)
+   * invalid}
    */
   @Override
   protected void before() throws SQLException {
@@ -249,87 +301,69 @@ public class H2Rule extends ExternalResource implements DataSource {
     if (this.c == null) {
       throw new IllegalStateException("this.getConnection()", new NullPointerException("this.getConnection()"));
     }
-    this.c.setAutoCommit(false);    
-    this.initializeOrLoadPristineDatabaseState();
-  }
-
-  private final void initializeOrLoadPristineDatabaseState() throws SQLException {
-    if (this.c == null) {
-      throw new IllegalStateException("this.getConnection()", new NullPointerException("this.getConnection()"));
-    } else if (!this.c.isValid(0)) {
+    this.configureConnection(this.c);
+    if (!this.c.isValid(0)) {
       throw new IllegalStateException("this.getConnection().isValid(0)");
     }
-    final String backup = this.getBackup();
-    if (backup != null) {
-      final java.sql.Statement statement = this.c.createStatement();
-      assert statement != null;
-      try {
-        statement.execute(backup);
-      } finally {
-        try {
-          statement.close();
-        } catch (final SQLException neverMind) {
-          // ignore on purpose
-        }
-      }
+    if (this.archive != null) {
+      this.archive.loadUnlessEmpty(this.description, this.c);
     }
   }
 
-  private final void backup() throws SQLException {
+  /**
+   * Configures the supplied open {@link Connection}.
+   *
+   * <p>This implementation does nothing.</p>
+   *
+   * @param c the {@link Connection} to configure; must not be {@code
+   * null}
+   *
+   * @exception SQLException if a database error occurs
+   */
+  protected void configureConnection(final Connection c) throws SQLException {
+    
+  }
+
+  private final void setDbCloseDelay() throws SQLException {
     if (this.c == null) {
       throw new IllegalStateException("this.getConnection()", new NullPointerException("this.getConnection()"));
-    } else if (!this.c.isValid(0)) {
-      throw new IllegalStateException("this.getConnection().isValid(0)");
     }
     final java.sql.Statement statement = this.c.createStatement();
     assert statement != null;
-    final StringBuilder sb = new StringBuilder();
     ResultSet rs = null;
     try {
-      rs = statement.executeQuery("SCRIPT");
+      rs = statement.executeQuery("SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'DB_CLOSE_DELAY'");
       assert rs != null;
-      while (rs.next()) {
-        sb.append(rs.getString(1)).append("\n");
+      Integer delay = null;
+      if (rs.next()) {
+        delay = rs.getInt(1);
+      }
+      if (rs.wasNull() || delay == null) {
+        rs.close();
+        statement.execute("SET DB_CLOSE_DELAY=-1");
       }
     } finally {
       if (rs != null) {
         try {
           rs.close();
-        } catch (final SQLException neverMind) {
-          // ignore
+        } catch (final SQLException ignore) {
+
         }
       }
       try {
         statement.close();
-      } catch (final SQLException neverMind) {
-        // ignore
+      } catch (final SQLException ignore) {
+
       }
     }
-    synchronized (H2Rule.class) {
-      backup = sb.toString();
-    }
+    
   }
-
+  
   /**
-   * Returns the DDL and SQL that represents the last backup taken by
-   * the {@link #after()} method as a {@link String}.
-   *
-   * <p>This method may return {@code null}.</p>
-   *
-   * @return DDL or SQL that represents the last backup taken by the
-   * {@link #after()} method, or {@code null}
-   *
-   * @see #after()
-   */
-  public final String getBackup() {
-    synchronized (H2Rule.class) {
-      return backup;
-    }
-  }
-
-  /**
-   * Ensures that the current H2 database is {@linkplain #getBackup()
-   * backed up} and shut down properly.
+   * Ensures that the current H2 database is {@linkplain
+   * H2Archive#saveIfEmpty(Description, Connection) backed up} and <a
+   * href="http://www.h2database.com/html/grammar.html?highlight=shutdown&search=shutdown#shutdown">shut
+   * down properly</a>.
    *
    * @see #before()
    *
@@ -338,34 +372,43 @@ public class H2Rule extends ExternalResource implements DataSource {
   @Override
   protected void after() {
     if (this.c != null) {
+
       try {
 
-        synchronized (H2Rule.class) {
-          final String backup = this.getBackup();
-          if (backup == null) {
-            this.backup();
+        if (this.archive != null) {
+          try {
+            this.archive.saveIfEmpty(this.description, this.c);
+          } catch (final SQLException oops) {
+            throw new IllegalStateException(oops);
           }
         }
-
-        final java.sql.Statement s = this.c.createStatement();
-        assert s != null;
+        
+        java.sql.Statement s = null;
         try {
+          s = this.c.createStatement();
+          assert s != null;
           s.execute("SHUTDOWN");
+        } catch (final SQLException shutdownProblem) {
+          throw new IllegalStateException(shutdownProblem);
         } finally {
           try {
             s.close();
           } catch (final SQLException ignore) {
-            // ignore
+            
           }
         }
 
-        this.c.close();
-      } catch (final SQLException nothingToDo) {
-        nothingToDo.printStackTrace();
+      } finally {
+        try {
+          this.c.close();
+        } catch (final SQLException ignore) {
+          
+        }
       }
+
       this.c = null;
     }
-    this.description = null;
+    this.description = null; // XXX TODO INVESTIGATE: not sure this is proper
   }
 
   /**
@@ -431,9 +474,8 @@ public class H2Rule extends ExternalResource implements DataSource {
   }
 
   /**
-   * Returns a <strong>cached and open</strong> {@link Connection} to
-   * an in-memory H2 database that is safe for use by the current
-   * {@link Thread}.
+   * Returns a new, open {@link Connection} to an in-memory H2
+   * database that is safe for use by the current {@link Thread}.
    *
    * @return a non-{@code null} {@link Connection}
    *
@@ -442,25 +484,16 @@ public class H2Rule extends ExternalResource implements DataSource {
    */
   @Override
   public Connection getConnection() throws SQLException {
-    boolean closed = true;
-    try {
-      closed = this.c == null || this.c.isClosed();
-    } catch (final SQLException oops) {
-      closed = true;
-    }
-    if (closed) {
-      this.c = this.getConnection(this.username, this.password);
-    }
-    return this.c;
+    return this.getConnection(this.username, this.password);
   }
 
   /**
    * Internally uses the {@link DriverManager#getConnection(String,
    * String, String)} method to create a {@link Connection} to a new,
    * in-memory H2 database that is <a
-   * href="https://groups.google.com/d/msg/h2-database/FjteyQPoiGg/IffNPLQjirAJ">safe
-   * for use</a> by the current {@link Thread}, not just the current
-   * JVM.
+   * href="https://groups.google.com/d/msg/h2-database/FjteyQPoiGg/IffNPLQjirAJ"
+   * target="_parent">safe for use</a> by the current {@link Thread},
+   * not just the current JVM.
    *
    * <p>In-memory H2 databases by default are private to a given
    * {@link Connection}.  For most unit- and integration-testing
@@ -486,7 +519,7 @@ public class H2Rule extends ExternalResource implements DataSource {
    * is the return value of the {@link Description#getDisplayName()}
    * method, {@code PID} is the return value of the {@link #pid()}
    * method, {@code THREAD_ID} is the return value of the {@link
-   * Thread#getId()} method when invoked on {@linkplain
+   * Thread#getId()} method when invoked on the {@linkplain
    * Thread#currentThread() current <code>Thread</code>} and {@code
    * INIT_SQL} is the initialization SQL passed to {@linkplain
    * #H2Rule(String, String, String) the constructor}.</p>
