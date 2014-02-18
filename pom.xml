@@ -30,6 +30,20 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>javax.persistence</artifactId>
+      <version>2.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
+      <version>2.5.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
       <version>2.4.9</version>
@@ -106,10 +120,8 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <systemPropertyVariables>
-              <!--
               <org.slf4j.simpleLogger.log.liquiunit>debug</org.slf4j.simpleLogger.log.liquiunit>
               <org.slf4j.simpleLogger.log.org.dbunit>debug</org.slf4j.simpleLogger.log.org.dbunit>
-              -->
               <testEclipseLinkLogging>${testEclipseLinkLogging}</testEclipseLinkLogging>
               <testDatabaseConnectionURL>${testDatabaseConnectionURL}</testDatabaseConnectionURL>
               <testDatabasePassword>${testDatabasePassword}</testDatabasePassword>

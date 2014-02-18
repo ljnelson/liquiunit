@@ -34,7 +34,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.WeakHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import java.util.logging.Logger;
@@ -151,7 +151,7 @@ public class H2Rule extends ExternalResource implements DataSource {
   public H2Rule() {
     this("sa", "", null, new H2Archive());
   }
-  
+
   /**
    * Creates a new {@link H2Rule}.
    *
@@ -200,6 +200,23 @@ public class H2Rule extends ExternalResource implements DataSource {
   /**
    * Creates a new {@link H2Rule}.
    *
+   * <p>This constructor calls the {@link #H2Rule(String, String,
+   * String, H2Archive)} constructor.</p>
+   *
+   * @param archive the {@link H2Archive} that can backup and restore
+   * the H2 database; may be {@code null}
+   *
+   * @see #H2Rule(String, String, String, H2Archive)
+   *
+   * @see H2Archive
+   */
+  public H2Rule(final H2Archive archive) {
+    this("sa", "", null, archive);
+  }
+
+  /**
+   * Creates a new {@link H2Rule}.
+   *
    * @param username the username to use when {@linkplain
    * #getConnection(String, String) acquiring} {@link Connection}s;
    * may be {@code null}
@@ -217,7 +234,7 @@ public class H2Rule extends ExternalResource implements DataSource {
    * the H2 database; may be {@code null}
    *
    * @see #H2Rule(String, String, String, H2Archive)
-   * 
+   *
    * @see #getConnection(String, String)
    *
    * @see DataSource#getConnection(String, String)
@@ -241,6 +258,15 @@ public class H2Rule extends ExternalResource implements DataSource {
    * Instance methods.
    */
 
+
+  public Map<?, ?> getJPAProperties() {
+    final Map<String, String> properties = new HashMap<String, String>(7);
+    properties.put("javax.persistence.jdbc.user", this.username);
+    properties.put("javax.persistence.jdbc.password", this.password);
+    properties.put("javax.persistence.jdbc.driver", org.h2.Driver.class.getName());
+    properties.put("javax.persistence.jdbc.url", this.getConnectionURL());
+    return properties;
+  }
 
   /**
    * Overrides the {@link ExternalResource#apply(Statement,
@@ -271,7 +297,7 @@ public class H2Rule extends ExternalResource implements DataSource {
     this.description = description;
     return super.apply(base, description);
   }
-  
+
   /**
    * {@linkplain #getConnection(String, String) Opens a new
    * <code>Connection</code>} to a thread-private H2 in-memory
@@ -321,7 +347,7 @@ public class H2Rule extends ExternalResource implements DataSource {
    * @exception SQLException if a database error occurs
    */
   protected void configureConnection(final Connection c) throws SQLException {
-    
+
   }
 
   private final void setDbCloseDelay() throws SQLException {
@@ -356,9 +382,9 @@ public class H2Rule extends ExternalResource implements DataSource {
 
       }
     }
-    
+
   }
-  
+
   /**
    * Ensures that the current H2 database is {@linkplain
    * H2Archive#saveIfEmpty(Description, Connection) backed up} and <a
@@ -382,7 +408,7 @@ public class H2Rule extends ExternalResource implements DataSource {
             throw new IllegalStateException(oops);
           }
         }
-        
+
         java.sql.Statement s = null;
         try {
           s = this.c.createStatement();
@@ -392,9 +418,11 @@ public class H2Rule extends ExternalResource implements DataSource {
           throw new IllegalStateException(shutdownProblem);
         } finally {
           try {
-            s.close();
+            if (s != null) {
+              s.close();
+            }
           } catch (final SQLException ignore) {
-            
+
           }
         }
 
@@ -402,7 +430,7 @@ public class H2Rule extends ExternalResource implements DataSource {
         try {
           this.c.close();
         } catch (final SQLException ignore) {
-          
+
         }
       }
 
@@ -545,6 +573,15 @@ public class H2Rule extends ExternalResource implements DataSource {
    */
   @Override
   public Connection getConnection(final String username, final String password) throws SQLException {
+    final String url = this.getConnectionURL();
+    if (username != null) {
+      return DriverManager.getConnection(url, username, password);
+    } else {
+      return DriverManager.getConnection(url);
+    }
+  }
+
+  public String getConnectionURL() {
     final StringBuilder sb = new StringBuilder("jdbc:h2:mem:");
     if (this.description != null) {
       final String displayName = this.description.getDisplayName();
@@ -564,12 +601,7 @@ public class H2Rule extends ExternalResource implements DataSource {
         sb.append(sql);
       }
     }
-    final String url = sb.toString();
-    if (username != null) {
-      return DriverManager.getConnection(url, username, password);
-    } else {
-      return DriverManager.getConnection(url);
-    }
+    return sb.toString();
   }
 
   /**
@@ -599,7 +631,7 @@ public class H2Rule extends ExternalResource implements DataSource {
   }
 
   /**
-   * Returns the current process identifier as a {@link String}.  
+   * Returns the current process identifier as a {@link String}.
    *
    * <p>This method may return {@code null} in exceptional
    * circumstances.</p>
