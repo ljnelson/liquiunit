@@ -165,7 +165,7 @@
     <maven.compiler.target>1.6</maven.compiler.target>
 
     <!-- maven-javadoc-plugin properties -->
-    <links>http://www.liquibase.org/javadoc/,http://junit.org/javadoc/4.10/,http://www.dbunit.org/apidocs/</links>
+    <links>http://www.liquibase.org/javadoc/,http://junit.org/javadoc/4.10/,http://www.dbunit.org/apidocs/,http://docs.oracle.com/javaee/6/api/</links>
 
   </properties>
 
