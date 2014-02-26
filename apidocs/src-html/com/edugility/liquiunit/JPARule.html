@@ -35,529 +35,528 @@
 <FONT color="green">032</FONT>    <a name="line.32"></a>
 <FONT color="green">033</FONT>    import java.util.ArrayList;<a name="line.33"></a>
 <FONT color="green">034</FONT>    import java.util.Collection;<a name="line.34"></a>
-<FONT color="green">035</FONT>    import java.util.List;<a name="line.35"></a>
-<FONT color="green">036</FONT>    import java.util.Map;<a name="line.36"></a>
-<FONT color="green">037</FONT>    <a name="line.37"></a>
-<FONT color="green">038</FONT>    import javax.persistence.EntityManager;<a name="line.38"></a>
-<FONT color="green">039</FONT>    import javax.persistence.EntityManagerFactory;<a name="line.39"></a>
-<FONT color="green">040</FONT>    import javax.persistence.EntityTransaction;<a name="line.40"></a>
-<FONT color="green">041</FONT>    import javax.persistence.Persistence;<a name="line.41"></a>
-<FONT color="green">042</FONT>    import javax.persistence.PersistenceContext;<a name="line.42"></a>
-<FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>    import org.junit.rules.ExternalResource;<a name="line.44"></a>
-<FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>    import org.junit.runner.Description;<a name="line.46"></a>
-<FONT color="green">047</FONT>    <a name="line.47"></a>
-<FONT color="green">048</FONT>    import org.junit.runners.model.Statement;<a name="line.48"></a>
-<FONT color="green">049</FONT>    <a name="line.49"></a>
-<FONT color="green">050</FONT>    /**<a name="line.50"></a>
-<FONT color="green">051</FONT>     * An {@link ExternalResource} that sets up an {@link EntityManager}<a name="line.51"></a>
-<FONT color="green">052</FONT>     * before each JUnit test run.<a name="line.52"></a>
-<FONT color="green">053</FONT>     *<a name="line.53"></a>
-<FONT color="green">054</FONT>     * &lt;p&gt;Clients may choose whether a single {@link EntityManagerFactory}<a name="line.54"></a>
-<FONT color="green">055</FONT>     * is used to create all {@link EntityManager}s, or whether an {@link<a name="line.55"></a>
-<FONT color="green">056</FONT>     * EntityManagerFactory} is created and {@linkplain<a name="line.56"></a>
-<FONT color="green">057</FONT>     * EntityManagerFactory#close() closed} before and after each test<a name="line.57"></a>
-<FONT color="green">058</FONT>     * run.&lt;/p&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>     *<a name="line.59"></a>
-<FONT color="green">060</FONT>     * &lt;p&gt;Although creating an {@link EntityManagerFactory} can be a<a name="line.60"></a>
-<FONT color="green">061</FONT>     * heavyweight operation, it offers much more isolation than the<a name="line.61"></a>
-<FONT color="green">062</FONT>     * alternative, and the intensity of its resource usage can be offset<a name="line.62"></a>
-<FONT color="green">063</FONT>     * by running tests in parallel.&lt;/p&gt;<a name="line.63"></a>
-<FONT color="green">064</FONT>     *<a name="line.64"></a>
-<FONT color="green">065</FONT>     * @author &lt;a href="http://about.me/lairdnelson"<a name="line.65"></a>
-<FONT color="green">066</FONT>     * target="_parent"&gt;Laird Nelson&lt;/a&gt;<a name="line.66"></a>
-<FONT color="green">067</FONT>     *<a name="line.67"></a>
-<FONT color="green">068</FONT>     * @see EntityManagerFactory<a name="line.68"></a>
-<FONT color="green">069</FONT>     *<a name="line.69"></a>
-<FONT color="green">070</FONT>     * @see ExternalResource<a name="line.70"></a>
-<FONT color="green">071</FONT>     *<a name="line.71"></a>
-<FONT color="green">072</FONT>     * @see Persistence#createEntityManagerFactory(String)<a name="line.72"></a>
-<FONT color="green">073</FONT>     */<a name="line.73"></a>
-<FONT color="green">074</FONT>    public class JPARule extends ExternalResource {<a name="line.74"></a>
-<FONT color="green">075</FONT>    <a name="line.75"></a>
-<FONT color="green">076</FONT>      /**<a name="line.76"></a>
-<FONT color="green">077</FONT>       * The instance of the test that this {@link JPARule} is decorating.<a name="line.77"></a>
-<FONT color="green">078</FONT>       *<a name="line.78"></a>
-<FONT color="green">079</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.79"></a>
-<FONT color="green">080</FONT>       */<a name="line.80"></a>
-<FONT color="green">081</FONT>      private final Object testInstance;<a name="line.81"></a>
-<FONT color="green">082</FONT>    <a name="line.82"></a>
-<FONT color="green">083</FONT>      /**<a name="line.83"></a>
-<FONT color="green">084</FONT>       * A {@link Collection} of {@link Field}s that house {@link<a name="line.84"></a>
-<FONT color="green">085</FONT>       * EntityManager}s; used by the {@link #before()} method for<a name="line.85"></a>
-<FONT color="green">086</FONT>       * implementing injection.<a name="line.86"></a>
-<FONT color="green">087</FONT>       *<a name="line.87"></a>
-<FONT color="green">088</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.88"></a>
-<FONT color="green">089</FONT>       *<a name="line.89"></a>
-<FONT color="green">090</FONT>       * @see #before()<a name="line.90"></a>
-<FONT color="green">091</FONT>       */<a name="line.91"></a>
-<FONT color="green">092</FONT>      private Collection&lt;Field&gt; fields;<a name="line.92"></a>
-<FONT color="green">093</FONT>    <a name="line.93"></a>
-<FONT color="green">094</FONT>      /**<a name="line.94"></a>
-<FONT color="green">095</FONT>       * A {@link Description} describing the current test.<a name="line.95"></a>
-<FONT color="green">096</FONT>       *<a name="line.96"></a>
-<FONT color="green">097</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.97"></a>
-<FONT color="green">098</FONT>       */<a name="line.98"></a>
-<FONT color="green">099</FONT>      private Description description;<a name="line.99"></a>
-<FONT color="green">100</FONT>    <a name="line.100"></a>
-<FONT color="green">101</FONT>      /**<a name="line.101"></a>
-<FONT color="green">102</FONT>       * The {@link EntityManager} in effect for the current test.<a name="line.102"></a>
-<FONT color="green">103</FONT>       *<a name="line.103"></a>
-<FONT color="green">104</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.104"></a>
-<FONT color="green">105</FONT>       */<a name="line.105"></a>
-<FONT color="green">106</FONT>      private EntityManager em;<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>      /**<a name="line.108"></a>
-<FONT color="green">109</FONT>       * The {@link EntityManagerFactory} in effect for the current test.<a name="line.109"></a>
-<FONT color="green">110</FONT>       *<a name="line.110"></a>
-<FONT color="green">111</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.111"></a>
-<FONT color="green">112</FONT>       */<a name="line.112"></a>
-<FONT color="green">113</FONT>      private EntityManagerFactory emf;<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>      /**<a name="line.115"></a>
-<FONT color="green">116</FONT>       * Whether or not the {@link EntityManagerFactory} should be<a name="line.116"></a>
-<FONT color="green">117</FONT>       * {@linkplain EntityManagerFactory#close() closed} in the {@link<a name="line.117"></a>
-<FONT color="green">118</FONT>       * #after()} method.  Typically this field is set to {@code true}<a name="line.118"></a>
-<FONT color="green">119</FONT>       * when {@linkplain #JPARule(Object, EntityManagerFactory) an<a name="line.119"></a>
-<FONT color="green">120</FONT>       * &lt;code&gt;EntityManagerFactory&lt;/code&gt; is passed in at construction<a name="line.120"></a>
-<FONT color="green">121</FONT>       * time}.<a name="line.121"></a>
-<FONT color="green">122</FONT>       *<a name="line.122"></a>
-<FONT color="green">123</FONT>       * @see #after()<a name="line.123"></a>
-<FONT color="green">124</FONT>       *<a name="line.124"></a>
-<FONT color="green">125</FONT>       * @see #JPARule(Object, EntityManagerFactory)<a name="line.125"></a>
-<FONT color="green">126</FONT>       */<a name="line.126"></a>
-<FONT color="green">127</FONT>      private boolean closeFactory;<a name="line.127"></a>
-<FONT color="green">128</FONT>    <a name="line.128"></a>
-<FONT color="green">129</FONT>      /**<a name="line.129"></a>
-<FONT color="green">130</FONT>       * The name of the persistence unit for which an {@link<a name="line.130"></a>
-<FONT color="green">131</FONT>       * EntityManagerFactory} should be created.<a name="line.131"></a>
-<FONT color="green">132</FONT>       *<a name="line.132"></a>
-<FONT color="green">133</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.133"></a>
-<FONT color="green">134</FONT>       */<a name="line.134"></a>
-<FONT color="green">135</FONT>      private final String persistenceUnitName;<a name="line.135"></a>
-<FONT color="green">136</FONT>    <a name="line.136"></a>
-<FONT color="green">137</FONT>      /**<a name="line.137"></a>
-<FONT color="green">138</FONT>       * A {@link Map} representing properties to be used during<a name="line.138"></a>
-<FONT color="green">139</FONT>       * {@linkplain Persistence#createEntityManagerFactory(String, Map)<a name="line.139"></a>
-<FONT color="green">140</FONT>       * &lt;code&gt;EntityManagerFactory&lt;/code&gt; creation}.<a name="line.140"></a>
-<FONT color="green">141</FONT>       *<a name="line.141"></a>
-<FONT color="green">142</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.142"></a>
-<FONT color="green">143</FONT>       */<a name="line.143"></a>
-<FONT color="green">144</FONT>      private final Map&lt;?, ?&gt; entityManagerFactoryProperties;<a name="line.144"></a>
-<FONT color="green">145</FONT>    <a name="line.145"></a>
-<FONT color="green">146</FONT>      /**<a name="line.146"></a>
-<FONT color="green">147</FONT>       * A {@link Map} representing properties to be used during<a name="line.147"></a>
-<FONT color="green">148</FONT>       * {@linkplain EntityManagerFactory#createEntityManager(Map)<a name="line.148"></a>
-<FONT color="green">149</FONT>       * &lt;code&gt;EntityManager&lt;/code&gt; creation}.<a name="line.149"></a>
-<FONT color="green">150</FONT>       *<a name="line.150"></a>
-<FONT color="green">151</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.151"></a>
-<FONT color="green">152</FONT>       */<a name="line.152"></a>
-<FONT color="green">153</FONT>      private final Map&lt;?, ?&gt; entityManagerProperties;<a name="line.153"></a>
-<FONT color="green">154</FONT>    <a name="line.154"></a>
-<FONT color="green">155</FONT>      /**<a name="line.155"></a>
-<FONT color="green">156</FONT>       * A {@link H2Rule} that might have been passed in at {@linkplain<a name="line.156"></a>
-<FONT color="green">157</FONT>       * #JPARule(Object, String, H2Rule) construction time}.  This {@link<a name="line.157"></a>
-<FONT color="green">158</FONT>       * H2Rule} will be used in that case to {@linkplain<a name="line.158"></a>
-<FONT color="green">159</FONT>       * H2Rule#getJPAProperties() produce properties} for a new {@link<a name="line.159"></a>
-<FONT color="green">160</FONT>       * EntityManagerFactory}.<a name="line.160"></a>
-<FONT color="green">161</FONT>       *<a name="line.161"></a>
-<FONT color="green">162</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.162"></a>
-<FONT color="green">163</FONT>       *<a name="line.163"></a>
-<FONT color="green">164</FONT>       * @see #JPARule(Object, String, H2Rule)<a name="line.164"></a>
-<FONT color="green">165</FONT>       *<a name="line.165"></a>
-<FONT color="green">166</FONT>       * @see H2Rule#getJPAProperties()<a name="line.166"></a>
-<FONT color="green">167</FONT>       */<a name="line.167"></a>
-<FONT color="green">168</FONT>      private final H2Rule h2Rule;<a name="line.168"></a>
+<FONT color="green">035</FONT>    import java.util.Map;<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>    import javax.persistence.EntityManager;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import javax.persistence.EntityManagerFactory;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import javax.persistence.EntityTransaction;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import javax.persistence.Persistence;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import javax.persistence.PersistenceContext;<a name="line.41"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>    import org.junit.rules.ExternalResource;<a name="line.43"></a>
+<FONT color="green">044</FONT>    <a name="line.44"></a>
+<FONT color="green">045</FONT>    import org.junit.runner.Description;<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>    import org.junit.runners.model.Statement;<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>    /**<a name="line.49"></a>
+<FONT color="green">050</FONT>     * An {@link ExternalResource} that sets up an {@link EntityManager}<a name="line.50"></a>
+<FONT color="green">051</FONT>     * before each JUnit test run.<a name="line.51"></a>
+<FONT color="green">052</FONT>     *<a name="line.52"></a>
+<FONT color="green">053</FONT>     * &lt;p&gt;Clients may choose whether a single {@link EntityManagerFactory}<a name="line.53"></a>
+<FONT color="green">054</FONT>     * is used to create all {@link EntityManager}s, or whether an {@link<a name="line.54"></a>
+<FONT color="green">055</FONT>     * EntityManagerFactory} is created and {@linkplain<a name="line.55"></a>
+<FONT color="green">056</FONT>     * EntityManagerFactory#close() closed} before and after each test<a name="line.56"></a>
+<FONT color="green">057</FONT>     * run.&lt;/p&gt;<a name="line.57"></a>
+<FONT color="green">058</FONT>     *<a name="line.58"></a>
+<FONT color="green">059</FONT>     * &lt;p&gt;Although creating an {@link EntityManagerFactory} can be a<a name="line.59"></a>
+<FONT color="green">060</FONT>     * heavyweight operation, it offers much more isolation than the<a name="line.60"></a>
+<FONT color="green">061</FONT>     * alternative, and the intensity of its resource usage can be offset<a name="line.61"></a>
+<FONT color="green">062</FONT>     * by running tests in parallel.&lt;/p&gt;<a name="line.62"></a>
+<FONT color="green">063</FONT>     *<a name="line.63"></a>
+<FONT color="green">064</FONT>     * @author &lt;a href="http://about.me/lairdnelson"<a name="line.64"></a>
+<FONT color="green">065</FONT>     * target="_parent"&gt;Laird Nelson&lt;/a&gt;<a name="line.65"></a>
+<FONT color="green">066</FONT>     *<a name="line.66"></a>
+<FONT color="green">067</FONT>     * @see EntityManagerFactory<a name="line.67"></a>
+<FONT color="green">068</FONT>     *<a name="line.68"></a>
+<FONT color="green">069</FONT>     * @see ExternalResource<a name="line.69"></a>
+<FONT color="green">070</FONT>     *<a name="line.70"></a>
+<FONT color="green">071</FONT>     * @see Persistence#createEntityManagerFactory(String)<a name="line.71"></a>
+<FONT color="green">072</FONT>     */<a name="line.72"></a>
+<FONT color="green">073</FONT>    public class JPARule extends ExternalResource {<a name="line.73"></a>
+<FONT color="green">074</FONT>    <a name="line.74"></a>
+<FONT color="green">075</FONT>      /**<a name="line.75"></a>
+<FONT color="green">076</FONT>       * The instance of the test that this {@link JPARule} is decorating.<a name="line.76"></a>
+<FONT color="green">077</FONT>       *<a name="line.77"></a>
+<FONT color="green">078</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.78"></a>
+<FONT color="green">079</FONT>       */<a name="line.79"></a>
+<FONT color="green">080</FONT>      private final Object testInstance;<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>      /**<a name="line.82"></a>
+<FONT color="green">083</FONT>       * A {@link Collection} of {@link Field}s that house {@link<a name="line.83"></a>
+<FONT color="green">084</FONT>       * EntityManager}s; used by the {@link #before()} method for<a name="line.84"></a>
+<FONT color="green">085</FONT>       * implementing injection.<a name="line.85"></a>
+<FONT color="green">086</FONT>       *<a name="line.86"></a>
+<FONT color="green">087</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.87"></a>
+<FONT color="green">088</FONT>       *<a name="line.88"></a>
+<FONT color="green">089</FONT>       * @see #before()<a name="line.89"></a>
+<FONT color="green">090</FONT>       */<a name="line.90"></a>
+<FONT color="green">091</FONT>      private Collection&lt;Field&gt; fields;<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>      /**<a name="line.93"></a>
+<FONT color="green">094</FONT>       * A {@link Description} describing the current test.<a name="line.94"></a>
+<FONT color="green">095</FONT>       *<a name="line.95"></a>
+<FONT color="green">096</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.96"></a>
+<FONT color="green">097</FONT>       */<a name="line.97"></a>
+<FONT color="green">098</FONT>      private Description description;<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>      /**<a name="line.100"></a>
+<FONT color="green">101</FONT>       * The {@link EntityManager} in effect for the current test.<a name="line.101"></a>
+<FONT color="green">102</FONT>       *<a name="line.102"></a>
+<FONT color="green">103</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.103"></a>
+<FONT color="green">104</FONT>       */<a name="line.104"></a>
+<FONT color="green">105</FONT>      private EntityManager em;<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>      /**<a name="line.107"></a>
+<FONT color="green">108</FONT>       * The {@link EntityManagerFactory} in effect for the current test.<a name="line.108"></a>
+<FONT color="green">109</FONT>       *<a name="line.109"></a>
+<FONT color="green">110</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.110"></a>
+<FONT color="green">111</FONT>       */<a name="line.111"></a>
+<FONT color="green">112</FONT>      private EntityManagerFactory emf;<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>      /**<a name="line.114"></a>
+<FONT color="green">115</FONT>       * Whether or not the {@link EntityManagerFactory} should be<a name="line.115"></a>
+<FONT color="green">116</FONT>       * {@linkplain EntityManagerFactory#close() closed} in the {@link<a name="line.116"></a>
+<FONT color="green">117</FONT>       * #after()} method.  Typically this field is set to {@code true}<a name="line.117"></a>
+<FONT color="green">118</FONT>       * when {@linkplain #JPARule(Object, EntityManagerFactory) an<a name="line.118"></a>
+<FONT color="green">119</FONT>       * &lt;code&gt;EntityManagerFactory&lt;/code&gt; is passed in at construction<a name="line.119"></a>
+<FONT color="green">120</FONT>       * time}.<a name="line.120"></a>
+<FONT color="green">121</FONT>       *<a name="line.121"></a>
+<FONT color="green">122</FONT>       * @see #after()<a name="line.122"></a>
+<FONT color="green">123</FONT>       *<a name="line.123"></a>
+<FONT color="green">124</FONT>       * @see #JPARule(Object, EntityManagerFactory)<a name="line.124"></a>
+<FONT color="green">125</FONT>       */<a name="line.125"></a>
+<FONT color="green">126</FONT>      private boolean closeFactory;<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>      /**<a name="line.128"></a>
+<FONT color="green">129</FONT>       * The name of the persistence unit for which an {@link<a name="line.129"></a>
+<FONT color="green">130</FONT>       * EntityManagerFactory} should be created.<a name="line.130"></a>
+<FONT color="green">131</FONT>       *<a name="line.131"></a>
+<FONT color="green">132</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.132"></a>
+<FONT color="green">133</FONT>       */<a name="line.133"></a>
+<FONT color="green">134</FONT>      private final String persistenceUnitName;<a name="line.134"></a>
+<FONT color="green">135</FONT>    <a name="line.135"></a>
+<FONT color="green">136</FONT>      /**<a name="line.136"></a>
+<FONT color="green">137</FONT>       * A {@link Map} representing properties to be used during<a name="line.137"></a>
+<FONT color="green">138</FONT>       * {@linkplain Persistence#createEntityManagerFactory(String, Map)<a name="line.138"></a>
+<FONT color="green">139</FONT>       * &lt;code&gt;EntityManagerFactory&lt;/code&gt; creation}.<a name="line.139"></a>
+<FONT color="green">140</FONT>       *<a name="line.140"></a>
+<FONT color="green">141</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.141"></a>
+<FONT color="green">142</FONT>       */<a name="line.142"></a>
+<FONT color="green">143</FONT>      private final Map&lt;?, ?&gt; entityManagerFactoryProperties;<a name="line.143"></a>
+<FONT color="green">144</FONT>    <a name="line.144"></a>
+<FONT color="green">145</FONT>      /**<a name="line.145"></a>
+<FONT color="green">146</FONT>       * A {@link Map} representing properties to be used during<a name="line.146"></a>
+<FONT color="green">147</FONT>       * {@linkplain EntityManagerFactory#createEntityManager(Map)<a name="line.147"></a>
+<FONT color="green">148</FONT>       * &lt;code&gt;EntityManager&lt;/code&gt; creation}.<a name="line.148"></a>
+<FONT color="green">149</FONT>       *<a name="line.149"></a>
+<FONT color="green">150</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.150"></a>
+<FONT color="green">151</FONT>       */<a name="line.151"></a>
+<FONT color="green">152</FONT>      private final Map&lt;?, ?&gt; entityManagerProperties;<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>      /**<a name="line.154"></a>
+<FONT color="green">155</FONT>       * A {@link H2Rule} that might have been passed in at {@linkplain<a name="line.155"></a>
+<FONT color="green">156</FONT>       * #JPARule(Object, String, H2Rule) construction time}.  This {@link<a name="line.156"></a>
+<FONT color="green">157</FONT>       * H2Rule} will be used in that case to {@linkplain<a name="line.157"></a>
+<FONT color="green">158</FONT>       * H2Rule#getJPAProperties() produce properties} for a new {@link<a name="line.158"></a>
+<FONT color="green">159</FONT>       * EntityManagerFactory}.<a name="line.159"></a>
+<FONT color="green">160</FONT>       *<a name="line.160"></a>
+<FONT color="green">161</FONT>       * &lt;p&gt;This field may be {@code null}.&lt;/p&gt;<a name="line.161"></a>
+<FONT color="green">162</FONT>       *<a name="line.162"></a>
+<FONT color="green">163</FONT>       * @see #JPARule(Object, String, H2Rule)<a name="line.163"></a>
+<FONT color="green">164</FONT>       *<a name="line.164"></a>
+<FONT color="green">165</FONT>       * @see H2Rule#getJPAProperties()<a name="line.165"></a>
+<FONT color="green">166</FONT>       */<a name="line.166"></a>
+<FONT color="green">167</FONT>      private final H2Rule h2Rule;<a name="line.167"></a>
+<FONT color="green">168</FONT>    <a name="line.168"></a>
 <FONT color="green">169</FONT>    <a name="line.169"></a>
-<FONT color="green">170</FONT>    <a name="line.170"></a>
-<FONT color="green">171</FONT>      /*<a name="line.171"></a>
-<FONT color="green">172</FONT>       * Constructors.<a name="line.172"></a>
-<FONT color="green">173</FONT>       */<a name="line.173"></a>
+<FONT color="green">170</FONT>      /*<a name="line.170"></a>
+<FONT color="green">171</FONT>       * Constructors.<a name="line.171"></a>
+<FONT color="green">172</FONT>       */<a name="line.172"></a>
+<FONT color="green">173</FONT>    <a name="line.173"></a>
 <FONT color="green">174</FONT>    <a name="line.174"></a>
-<FONT color="green">175</FONT>    <a name="line.175"></a>
-<FONT color="green">176</FONT>      /**<a name="line.176"></a>
-<FONT color="green">177</FONT>       * Creates a new {@link JPARule}.<a name="line.177"></a>
-<FONT color="green">178</FONT>       *<a name="line.178"></a>
-<FONT color="green">179</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.179"></a>
-<FONT color="green">180</FONT>       * {@code null}<a name="line.180"></a>
-<FONT color="green">181</FONT>       *<a name="line.181"></a>
-<FONT color="green">182</FONT>       * @param persistenceUnitName the name of the persistence unit to<a name="line.182"></a>
-<FONT color="green">183</FONT>       * look for; must not be {@code null}<a name="line.183"></a>
-<FONT color="green">184</FONT>       *<a name="line.184"></a>
-<FONT color="green">185</FONT>       * @param h2Rule an {@link H2Rule} whose {@link<a name="line.185"></a>
-<FONT color="green">186</FONT>       * H2Rule#getJPAProperties()} method will provide the connection and<a name="line.186"></a>
-<FONT color="green">187</FONT>       * authentication information; must not be {@code null}<a name="line.187"></a>
-<FONT color="green">188</FONT>       *<a name="line.188"></a>
-<FONT color="green">189</FONT>       * @exception IllegalArgumentException if {@code testInstance} or<a name="line.189"></a>
-<FONT color="green">190</FONT>       * {@code persistenceUnitName} or {@code h2Rule} is {@code null}<a name="line.190"></a>
-<FONT color="green">191</FONT>       */<a name="line.191"></a>
-<FONT color="green">192</FONT>      public JPARule(final Object testInstance, final String persistenceUnitName, final H2Rule h2Rule) {<a name="line.192"></a>
-<FONT color="green">193</FONT>        super();<a name="line.193"></a>
-<FONT color="green">194</FONT>        if (testInstance == null) {<a name="line.194"></a>
-<FONT color="green">195</FONT>          throw new IllegalArgumentException("testInstance", new NullPointerException("testInstance"));<a name="line.195"></a>
-<FONT color="green">196</FONT>        } else if (persistenceUnitName == null) {<a name="line.196"></a>
-<FONT color="green">197</FONT>          throw new IllegalArgumentException("persistenceUnitName", new NullPointerException("persistenceUnitName"));<a name="line.197"></a>
-<FONT color="green">198</FONT>        } else if (h2Rule == null) {<a name="line.198"></a>
-<FONT color="green">199</FONT>          throw new IllegalArgumentException("h2Rule", new NullPointerException("h2Rule"));<a name="line.199"></a>
-<FONT color="green">200</FONT>        }<a name="line.200"></a>
-<FONT color="green">201</FONT>        this.testInstance = testInstance;<a name="line.201"></a>
-<FONT color="green">202</FONT>        this.persistenceUnitName = persistenceUnitName;<a name="line.202"></a>
-<FONT color="green">203</FONT>        this.h2Rule = h2Rule;<a name="line.203"></a>
-<FONT color="green">204</FONT>        this.entityManagerFactoryProperties = null;<a name="line.204"></a>
-<FONT color="green">205</FONT>        this.entityManagerProperties = null;<a name="line.205"></a>
-<FONT color="green">206</FONT>      }<a name="line.206"></a>
-<FONT color="green">207</FONT>    <a name="line.207"></a>
-<FONT color="green">208</FONT>      /**<a name="line.208"></a>
-<FONT color="green">209</FONT>       * Creates a new {@link JPARule}.<a name="line.209"></a>
-<FONT color="green">210</FONT>       *<a name="line.210"></a>
-<FONT color="green">211</FONT>       * &lt;p&gt;This constructor calls the {@link #JPARule(Object,<a name="line.211"></a>
-<FONT color="green">212</FONT>       * EntityManagerFactory, Map)} constructor supplying it with the<a name="line.212"></a>
-<FONT color="green">213</FONT>       * value of the {@code testInstance} parameter, the return value<a name="line.213"></a>
-<FONT color="green">214</FONT>       * that results from invoking the {@link<a name="line.214"></a>
-<FONT color="green">215</FONT>       * Persistence#createEntityManagerFactory(String)} method with the<a name="line.215"></a>
-<FONT color="green">216</FONT>       * supplied {@code persistenceUnitName} parameter and {@code<a name="line.216"></a>
-<FONT color="green">217</FONT>       * null}.&lt;/p&gt;<a name="line.217"></a>
-<FONT color="green">218</FONT>       * <a name="line.218"></a>
-<FONT color="green">219</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.219"></a>
-<FONT color="green">220</FONT>       * {@code null}<a name="line.220"></a>
-<FONT color="green">221</FONT>       *<a name="line.221"></a>
-<FONT color="green">222</FONT>       * @param persistenceUnitName the name of the persistence unit to<a name="line.222"></a>
-<FONT color="green">223</FONT>       * look for; must not be {@code null}<a name="line.223"></a>
-<FONT color="green">224</FONT>       *<a name="line.224"></a>
-<FONT color="green">225</FONT>       * @exception IllegalArgumentException if {@code testInstance} or<a name="line.225"></a>
-<FONT color="green">226</FONT>       * {@code persistenceUnitName} is {@code null}<a name="line.226"></a>
-<FONT color="green">227</FONT>       *<a name="line.227"></a>
-<FONT color="green">228</FONT>       * @exception NullPointerException if {@code persistenceUnitName} is<a name="line.228"></a>
-<FONT color="green">229</FONT>       * {@code null}<a name="line.229"></a>
-<FONT color="green">230</FONT>       *<a name="line.230"></a>
-<FONT color="green">231</FONT>       * @see #JPARule(Object, EntityManagerFactory, Map)<a name="line.231"></a>
-<FONT color="green">232</FONT>       */<a name="line.232"></a>
-<FONT color="green">233</FONT>      public JPARule(final Object testInstance, final String persistenceUnitName) {<a name="line.233"></a>
-<FONT color="green">234</FONT>        this(testInstance, Persistence.createEntityManagerFactory(persistenceUnitName), null);<a name="line.234"></a>
-<FONT color="green">235</FONT>      }<a name="line.235"></a>
-<FONT color="green">236</FONT>    <a name="line.236"></a>
-<FONT color="green">237</FONT>      /**<a name="line.237"></a>
-<FONT color="green">238</FONT>       * Creates a new {@link JPARule}.<a name="line.238"></a>
-<FONT color="green">239</FONT>       *<a name="line.239"></a>
-<FONT color="green">240</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.240"></a>
-<FONT color="green">241</FONT>       * {@code null}<a name="line.241"></a>
-<FONT color="green">242</FONT>       *<a name="line.242"></a>
-<FONT color="green">243</FONT>       * @param persistenceUnitName the name of the persistence unit to<a name="line.243"></a>
-<FONT color="green">244</FONT>       * look for; must not be {@code null}<a name="line.244"></a>
-<FONT color="green">245</FONT>       *<a name="line.245"></a>
-<FONT color="green">246</FONT>       * @param entityManagerFactoryProperties a {@link Map} of properties<a name="line.246"></a>
-<FONT color="green">247</FONT>       * to use when {@linkplain<a name="line.247"></a>
-<FONT color="green">248</FONT>       * Persistence#createEntityManagerFactory(String, Map) creating a<a name="line.248"></a>
-<FONT color="green">249</FONT>       * new &lt;code&gt;EntityManagerFactory&lt;/code&gt;}; may be {@code null}<a name="line.249"></a>
-<FONT color="green">250</FONT>       *<a name="line.250"></a>
-<FONT color="green">251</FONT>       * @param entityManagerProperties a {@link Map} of properties to use<a name="line.251"></a>
-<FONT color="green">252</FONT>       * when {@linkplain EntityManagerFactory#createEntityManager(Map)<a name="line.252"></a>
-<FONT color="green">253</FONT>       * creating a new &lt;code&gt;EntityManager&lt;/code&gt;}; may be {@code null}<a name="line.253"></a>
-<FONT color="green">254</FONT>       *<a name="line.254"></a>
-<FONT color="green">255</FONT>       * @exception IllegalArgumentException if {@code testInstance} or<a name="line.255"></a>
-<FONT color="green">256</FONT>       * {@code persistenceUnitName} is {@code null}<a name="line.256"></a>
-<FONT color="green">257</FONT>       */<a name="line.257"></a>
-<FONT color="green">258</FONT>      public JPARule(final Object testInstance, final String persistenceUnitName, final Map&lt;?, ?&gt; entityManagerFactoryProperties, final Map&lt;?, ?&gt; entityManagerProperties) {<a name="line.258"></a>
-<FONT color="green">259</FONT>        super();<a name="line.259"></a>
-<FONT color="green">260</FONT>        if (testInstance == null) {<a name="line.260"></a>
-<FONT color="green">261</FONT>          throw new IllegalArgumentException("testInstance", new NullPointerException("testInstance"));<a name="line.261"></a>
-<FONT color="green">262</FONT>        } else if (persistenceUnitName == null) {<a name="line.262"></a>
-<FONT color="green">263</FONT>          throw new IllegalArgumentException("persistenceUnitName", new NullPointerException("persistenceUnitName"));<a name="line.263"></a>
-<FONT color="green">264</FONT>        }<a name="line.264"></a>
-<FONT color="green">265</FONT>        this.testInstance = testInstance;<a name="line.265"></a>
-<FONT color="green">266</FONT>        this.persistenceUnitName = persistenceUnitName;<a name="line.266"></a>
-<FONT color="green">267</FONT>        this.h2Rule = null;<a name="line.267"></a>
-<FONT color="green">268</FONT>        this.entityManagerFactoryProperties = entityManagerFactoryProperties;<a name="line.268"></a>
-<FONT color="green">269</FONT>        this.entityManagerProperties = entityManagerProperties;<a name="line.269"></a>
-<FONT color="green">270</FONT>      }<a name="line.270"></a>
-<FONT color="green">271</FONT>    <a name="line.271"></a>
-<FONT color="green">272</FONT>      /**<a name="line.272"></a>
-<FONT color="green">273</FONT>       * Creates a new {@link JPARule}.<a name="line.273"></a>
-<FONT color="green">274</FONT>       *<a name="line.274"></a>
-<FONT color="green">275</FONT>       * &lt;p&gt;This constructor calls the {@link #JPARule(Object,<a name="line.275"></a>
-<FONT color="green">276</FONT>       * EntityManagerFactory, Map)} constructor, supplying {@code null}<a name="line.276"></a>
-<FONT color="green">277</FONT>       * for the third parameter.&lt;/p&gt;<a name="line.277"></a>
-<FONT color="green">278</FONT>       *<a name="line.278"></a>
-<FONT color="green">279</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.279"></a>
-<FONT color="green">280</FONT>       * {@code null}<a name="line.280"></a>
-<FONT color="green">281</FONT>       *<a name="line.281"></a>
-<FONT color="green">282</FONT>       * @param emf an {@link EntityManagerFactory}; may be {@code null}<a name="line.282"></a>
-<FONT color="green">283</FONT>       *<a name="line.283"></a>
-<FONT color="green">284</FONT>       * @exception IllegalArgumentException if {@code testInstance} is<a name="line.284"></a>
-<FONT color="green">285</FONT>       * {@code null}<a name="line.285"></a>
-<FONT color="green">286</FONT>       *<a name="line.286"></a>
-<FONT color="green">287</FONT>       * @see #JPARule(Object, EntityManagerFactory, Map)<a name="line.287"></a>
-<FONT color="green">288</FONT>       */<a name="line.288"></a>
-<FONT color="green">289</FONT>      public JPARule(final Object testInstance, final EntityManagerFactory emf) {<a name="line.289"></a>
-<FONT color="green">290</FONT>        this(testInstance, emf, null);<a name="line.290"></a>
-<FONT color="green">291</FONT>      }<a name="line.291"></a>
-<FONT color="green">292</FONT>    <a name="line.292"></a>
-<FONT color="green">293</FONT>      /**<a name="line.293"></a>
-<FONT color="green">294</FONT>       * Creates a new {@link JPARule}.<a name="line.294"></a>
-<FONT color="green">295</FONT>       *<a name="line.295"></a>
-<FONT color="green">296</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.296"></a>
-<FONT color="green">297</FONT>       * {@code null}<a name="line.297"></a>
-<FONT color="green">298</FONT>       *<a name="line.298"></a>
-<FONT color="green">299</FONT>       * @param emf the {@link EntityManagerFactory} to use; may be {@code<a name="line.299"></a>
-<FONT color="green">300</FONT>       * null}<a name="line.300"></a>
-<FONT color="green">301</FONT>       *<a name="line.301"></a>
-<FONT color="green">302</FONT>       * @param entityManagerProperties the {@link Map} of properties to<a name="line.302"></a>
-<FONT color="green">303</FONT>       * use when {@linkplain<a name="line.303"></a>
-<FONT color="green">304</FONT>       * EntityManagerFactory#createEntityManager(Map) creating a new<a name="line.304"></a>
-<FONT color="green">305</FONT>       * &lt;code&gt;EntityManager&lt;/code&gt;}; may be {@code null}<a name="line.305"></a>
-<FONT color="green">306</FONT>       *<a name="line.306"></a>
-<FONT color="green">307</FONT>       * @exception IllegalArgumentException if {@code testInstance} is<a name="line.307"></a>
-<FONT color="green">308</FONT>       * {@code null}<a name="line.308"></a>
-<FONT color="green">309</FONT>       */<a name="line.309"></a>
-<FONT color="green">310</FONT>      public JPARule(final Object testInstance, final EntityManagerFactory emf, final Map&lt;?, ?&gt; entityManagerProperties) {<a name="line.310"></a>
-<FONT color="green">311</FONT>        super();<a name="line.311"></a>
-<FONT color="green">312</FONT>        if (testInstance == null) {<a name="line.312"></a>
-<FONT color="green">313</FONT>          throw new IllegalArgumentException("testInstance", new NullPointerException("testInstance"));<a name="line.313"></a>
-<FONT color="green">314</FONT>        }<a name="line.314"></a>
-<FONT color="green">315</FONT>        this.testInstance = testInstance;<a name="line.315"></a>
-<FONT color="green">316</FONT>        this.persistenceUnitName = null;<a name="line.316"></a>
-<FONT color="green">317</FONT>        this.h2Rule = null;<a name="line.317"></a>
-<FONT color="green">318</FONT>        this.entityManagerFactoryProperties = emf == null ? null : emf.getProperties();<a name="line.318"></a>
-<FONT color="green">319</FONT>        this.entityManagerProperties = entityManagerProperties;<a name="line.319"></a>
-<FONT color="green">320</FONT>        this.emf = emf;<a name="line.320"></a>
-<FONT color="green">321</FONT>      }<a name="line.321"></a>
+<FONT color="green">175</FONT>      /**<a name="line.175"></a>
+<FONT color="green">176</FONT>       * Creates a new {@link JPARule}.<a name="line.176"></a>
+<FONT color="green">177</FONT>       *<a name="line.177"></a>
+<FONT color="green">178</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.178"></a>
+<FONT color="green">179</FONT>       * {@code null}<a name="line.179"></a>
+<FONT color="green">180</FONT>       *<a name="line.180"></a>
+<FONT color="green">181</FONT>       * @param persistenceUnitName the name of the persistence unit to<a name="line.181"></a>
+<FONT color="green">182</FONT>       * look for; must not be {@code null}<a name="line.182"></a>
+<FONT color="green">183</FONT>       *<a name="line.183"></a>
+<FONT color="green">184</FONT>       * @param h2Rule an {@link H2Rule} whose {@link<a name="line.184"></a>
+<FONT color="green">185</FONT>       * H2Rule#getJPAProperties()} method will provide the connection and<a name="line.185"></a>
+<FONT color="green">186</FONT>       * authentication information; must not be {@code null}<a name="line.186"></a>
+<FONT color="green">187</FONT>       *<a name="line.187"></a>
+<FONT color="green">188</FONT>       * @exception IllegalArgumentException if {@code testInstance} or<a name="line.188"></a>
+<FONT color="green">189</FONT>       * {@code persistenceUnitName} or {@code h2Rule} is {@code null}<a name="line.189"></a>
+<FONT color="green">190</FONT>       */<a name="line.190"></a>
+<FONT color="green">191</FONT>      public JPARule(final Object testInstance, final String persistenceUnitName, final H2Rule h2Rule) {<a name="line.191"></a>
+<FONT color="green">192</FONT>        super();<a name="line.192"></a>
+<FONT color="green">193</FONT>        if (testInstance == null) {<a name="line.193"></a>
+<FONT color="green">194</FONT>          throw new IllegalArgumentException("testInstance", new NullPointerException("testInstance"));<a name="line.194"></a>
+<FONT color="green">195</FONT>        } else if (persistenceUnitName == null) {<a name="line.195"></a>
+<FONT color="green">196</FONT>          throw new IllegalArgumentException("persistenceUnitName", new NullPointerException("persistenceUnitName"));<a name="line.196"></a>
+<FONT color="green">197</FONT>        } else if (h2Rule == null) {<a name="line.197"></a>
+<FONT color="green">198</FONT>          throw new IllegalArgumentException("h2Rule", new NullPointerException("h2Rule"));<a name="line.198"></a>
+<FONT color="green">199</FONT>        }<a name="line.199"></a>
+<FONT color="green">200</FONT>        this.testInstance = testInstance;<a name="line.200"></a>
+<FONT color="green">201</FONT>        this.persistenceUnitName = persistenceUnitName;<a name="line.201"></a>
+<FONT color="green">202</FONT>        this.h2Rule = h2Rule;<a name="line.202"></a>
+<FONT color="green">203</FONT>        this.entityManagerFactoryProperties = null;<a name="line.203"></a>
+<FONT color="green">204</FONT>        this.entityManagerProperties = null;<a name="line.204"></a>
+<FONT color="green">205</FONT>      }<a name="line.205"></a>
+<FONT color="green">206</FONT>    <a name="line.206"></a>
+<FONT color="green">207</FONT>      /**<a name="line.207"></a>
+<FONT color="green">208</FONT>       * Creates a new {@link JPARule}.<a name="line.208"></a>
+<FONT color="green">209</FONT>       *<a name="line.209"></a>
+<FONT color="green">210</FONT>       * &lt;p&gt;This constructor calls the {@link #JPARule(Object,<a name="line.210"></a>
+<FONT color="green">211</FONT>       * EntityManagerFactory, Map)} constructor supplying it with the<a name="line.211"></a>
+<FONT color="green">212</FONT>       * value of the {@code testInstance} parameter, the return value<a name="line.212"></a>
+<FONT color="green">213</FONT>       * that results from invoking the {@link<a name="line.213"></a>
+<FONT color="green">214</FONT>       * Persistence#createEntityManagerFactory(String)} method with the<a name="line.214"></a>
+<FONT color="green">215</FONT>       * supplied {@code persistenceUnitName} parameter and {@code<a name="line.215"></a>
+<FONT color="green">216</FONT>       * null}.&lt;/p&gt;<a name="line.216"></a>
+<FONT color="green">217</FONT>       * <a name="line.217"></a>
+<FONT color="green">218</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.218"></a>
+<FONT color="green">219</FONT>       * {@code null}<a name="line.219"></a>
+<FONT color="green">220</FONT>       *<a name="line.220"></a>
+<FONT color="green">221</FONT>       * @param persistenceUnitName the name of the persistence unit to<a name="line.221"></a>
+<FONT color="green">222</FONT>       * look for; must not be {@code null}<a name="line.222"></a>
+<FONT color="green">223</FONT>       *<a name="line.223"></a>
+<FONT color="green">224</FONT>       * @exception IllegalArgumentException if {@code testInstance} or<a name="line.224"></a>
+<FONT color="green">225</FONT>       * {@code persistenceUnitName} is {@code null}<a name="line.225"></a>
+<FONT color="green">226</FONT>       *<a name="line.226"></a>
+<FONT color="green">227</FONT>       * @exception NullPointerException if {@code persistenceUnitName} is<a name="line.227"></a>
+<FONT color="green">228</FONT>       * {@code null}<a name="line.228"></a>
+<FONT color="green">229</FONT>       *<a name="line.229"></a>
+<FONT color="green">230</FONT>       * @see #JPARule(Object, EntityManagerFactory, Map)<a name="line.230"></a>
+<FONT color="green">231</FONT>       */<a name="line.231"></a>
+<FONT color="green">232</FONT>      public JPARule(final Object testInstance, final String persistenceUnitName) {<a name="line.232"></a>
+<FONT color="green">233</FONT>        this(testInstance, Persistence.createEntityManagerFactory(persistenceUnitName), null);<a name="line.233"></a>
+<FONT color="green">234</FONT>      }<a name="line.234"></a>
+<FONT color="green">235</FONT>    <a name="line.235"></a>
+<FONT color="green">236</FONT>      /**<a name="line.236"></a>
+<FONT color="green">237</FONT>       * Creates a new {@link JPARule}.<a name="line.237"></a>
+<FONT color="green">238</FONT>       *<a name="line.238"></a>
+<FONT color="green">239</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.239"></a>
+<FONT color="green">240</FONT>       * {@code null}<a name="line.240"></a>
+<FONT color="green">241</FONT>       *<a name="line.241"></a>
+<FONT color="green">242</FONT>       * @param persistenceUnitName the name of the persistence unit to<a name="line.242"></a>
+<FONT color="green">243</FONT>       * look for; must not be {@code null}<a name="line.243"></a>
+<FONT color="green">244</FONT>       *<a name="line.244"></a>
+<FONT color="green">245</FONT>       * @param entityManagerFactoryProperties a {@link Map} of properties<a name="line.245"></a>
+<FONT color="green">246</FONT>       * to use when {@linkplain<a name="line.246"></a>
+<FONT color="green">247</FONT>       * Persistence#createEntityManagerFactory(String, Map) creating a<a name="line.247"></a>
+<FONT color="green">248</FONT>       * new &lt;code&gt;EntityManagerFactory&lt;/code&gt;}; may be {@code null}<a name="line.248"></a>
+<FONT color="green">249</FONT>       *<a name="line.249"></a>
+<FONT color="green">250</FONT>       * @param entityManagerProperties a {@link Map} of properties to use<a name="line.250"></a>
+<FONT color="green">251</FONT>       * when {@linkplain EntityManagerFactory#createEntityManager(Map)<a name="line.251"></a>
+<FONT color="green">252</FONT>       * creating a new &lt;code&gt;EntityManager&lt;/code&gt;}; may be {@code null}<a name="line.252"></a>
+<FONT color="green">253</FONT>       *<a name="line.253"></a>
+<FONT color="green">254</FONT>       * @exception IllegalArgumentException if {@code testInstance} or<a name="line.254"></a>
+<FONT color="green">255</FONT>       * {@code persistenceUnitName} is {@code null}<a name="line.255"></a>
+<FONT color="green">256</FONT>       */<a name="line.256"></a>
+<FONT color="green">257</FONT>      public JPARule(final Object testInstance, final String persistenceUnitName, final Map&lt;?, ?&gt; entityManagerFactoryProperties, final Map&lt;?, ?&gt; entityManagerProperties) {<a name="line.257"></a>
+<FONT color="green">258</FONT>        super();<a name="line.258"></a>
+<FONT color="green">259</FONT>        if (testInstance == null) {<a name="line.259"></a>
+<FONT color="green">260</FONT>          throw new IllegalArgumentException("testInstance", new NullPointerException("testInstance"));<a name="line.260"></a>
+<FONT color="green">261</FONT>        } else if (persistenceUnitName == null) {<a name="line.261"></a>
+<FONT color="green">262</FONT>          throw new IllegalArgumentException("persistenceUnitName", new NullPointerException("persistenceUnitName"));<a name="line.262"></a>
+<FONT color="green">263</FONT>        }<a name="line.263"></a>
+<FONT color="green">264</FONT>        this.testInstance = testInstance;<a name="line.264"></a>
+<FONT color="green">265</FONT>        this.persistenceUnitName = persistenceUnitName;<a name="line.265"></a>
+<FONT color="green">266</FONT>        this.h2Rule = null;<a name="line.266"></a>
+<FONT color="green">267</FONT>        this.entityManagerFactoryProperties = entityManagerFactoryProperties;<a name="line.267"></a>
+<FONT color="green">268</FONT>        this.entityManagerProperties = entityManagerProperties;<a name="line.268"></a>
+<FONT color="green">269</FONT>      }<a name="line.269"></a>
+<FONT color="green">270</FONT>    <a name="line.270"></a>
+<FONT color="green">271</FONT>      /**<a name="line.271"></a>
+<FONT color="green">272</FONT>       * Creates a new {@link JPARule}.<a name="line.272"></a>
+<FONT color="green">273</FONT>       *<a name="line.273"></a>
+<FONT color="green">274</FONT>       * &lt;p&gt;This constructor calls the {@link #JPARule(Object,<a name="line.274"></a>
+<FONT color="green">275</FONT>       * EntityManagerFactory, Map)} constructor, supplying {@code null}<a name="line.275"></a>
+<FONT color="green">276</FONT>       * for the third parameter.&lt;/p&gt;<a name="line.276"></a>
+<FONT color="green">277</FONT>       *<a name="line.277"></a>
+<FONT color="green">278</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.278"></a>
+<FONT color="green">279</FONT>       * {@code null}<a name="line.279"></a>
+<FONT color="green">280</FONT>       *<a name="line.280"></a>
+<FONT color="green">281</FONT>       * @param emf an {@link EntityManagerFactory}; may be {@code null}<a name="line.281"></a>
+<FONT color="green">282</FONT>       *<a name="line.282"></a>
+<FONT color="green">283</FONT>       * @exception IllegalArgumentException if {@code testInstance} is<a name="line.283"></a>
+<FONT color="green">284</FONT>       * {@code null}<a name="line.284"></a>
+<FONT color="green">285</FONT>       *<a name="line.285"></a>
+<FONT color="green">286</FONT>       * @see #JPARule(Object, EntityManagerFactory, Map)<a name="line.286"></a>
+<FONT color="green">287</FONT>       */<a name="line.287"></a>
+<FONT color="green">288</FONT>      public JPARule(final Object testInstance, final EntityManagerFactory emf) {<a name="line.288"></a>
+<FONT color="green">289</FONT>        this(testInstance, emf, null);<a name="line.289"></a>
+<FONT color="green">290</FONT>      }<a name="line.290"></a>
+<FONT color="green">291</FONT>    <a name="line.291"></a>
+<FONT color="green">292</FONT>      /**<a name="line.292"></a>
+<FONT color="green">293</FONT>       * Creates a new {@link JPARule}.<a name="line.293"></a>
+<FONT color="green">294</FONT>       *<a name="line.294"></a>
+<FONT color="green">295</FONT>       * @param testInstance an instance of the test class; must not be<a name="line.295"></a>
+<FONT color="green">296</FONT>       * {@code null}<a name="line.296"></a>
+<FONT color="green">297</FONT>       *<a name="line.297"></a>
+<FONT color="green">298</FONT>       * @param emf the {@link EntityManagerFactory} to use; may be {@code<a name="line.298"></a>
+<FONT color="green">299</FONT>       * null}<a name="line.299"></a>
+<FONT color="green">300</FONT>       *<a name="line.300"></a>
+<FONT color="green">301</FONT>       * @param entityManagerProperties the {@link Map} of properties to<a name="line.301"></a>
+<FONT color="green">302</FONT>       * use when {@linkplain<a name="line.302"></a>
+<FONT color="green">303</FONT>       * EntityManagerFactory#createEntityManager(Map) creating a new<a name="line.303"></a>
+<FONT color="green">304</FONT>       * &lt;code&gt;EntityManager&lt;/code&gt;}; may be {@code null}<a name="line.304"></a>
+<FONT color="green">305</FONT>       *<a name="line.305"></a>
+<FONT color="green">306</FONT>       * @exception IllegalArgumentException if {@code testInstance} is<a name="line.306"></a>
+<FONT color="green">307</FONT>       * {@code null}<a name="line.307"></a>
+<FONT color="green">308</FONT>       */<a name="line.308"></a>
+<FONT color="green">309</FONT>      public JPARule(final Object testInstance, final EntityManagerFactory emf, final Map&lt;?, ?&gt; entityManagerProperties) {<a name="line.309"></a>
+<FONT color="green">310</FONT>        super();<a name="line.310"></a>
+<FONT color="green">311</FONT>        if (testInstance == null) {<a name="line.311"></a>
+<FONT color="green">312</FONT>          throw new IllegalArgumentException("testInstance", new NullPointerException("testInstance"));<a name="line.312"></a>
+<FONT color="green">313</FONT>        }<a name="line.313"></a>
+<FONT color="green">314</FONT>        this.testInstance = testInstance;<a name="line.314"></a>
+<FONT color="green">315</FONT>        this.persistenceUnitName = null;<a name="line.315"></a>
+<FONT color="green">316</FONT>        this.h2Rule = null;<a name="line.316"></a>
+<FONT color="green">317</FONT>        this.entityManagerFactoryProperties = emf == null ? null : emf.getProperties();<a name="line.317"></a>
+<FONT color="green">318</FONT>        this.entityManagerProperties = entityManagerProperties;<a name="line.318"></a>
+<FONT color="green">319</FONT>        this.emf = emf;<a name="line.319"></a>
+<FONT color="green">320</FONT>      }<a name="line.320"></a>
+<FONT color="green">321</FONT>    <a name="line.321"></a>
 <FONT color="green">322</FONT>    <a name="line.322"></a>
-<FONT color="green">323</FONT>    <a name="line.323"></a>
-<FONT color="green">324</FONT>      /*<a name="line.324"></a>
-<FONT color="green">325</FONT>       * Instance methods.<a name="line.325"></a>
-<FONT color="green">326</FONT>       */<a name="line.326"></a>
+<FONT color="green">323</FONT>      /*<a name="line.323"></a>
+<FONT color="green">324</FONT>       * Instance methods.<a name="line.324"></a>
+<FONT color="green">325</FONT>       */<a name="line.325"></a>
+<FONT color="green">326</FONT>    <a name="line.326"></a>
 <FONT color="green">327</FONT>    <a name="line.327"></a>
-<FONT color="green">328</FONT>    <a name="line.328"></a>
-<FONT color="green">329</FONT>      /**<a name="line.329"></a>
-<FONT color="green">330</FONT>       * Creates an {@link EntityManager} and injects it into all fields<a name="line.330"></a>
-<FONT color="green">331</FONT>       * in the test instance that are of type {@code EntityManager} and<a name="line.331"></a>
-<FONT color="green">332</FONT>       * that are annotated with {@link<a name="line.332"></a>
-<FONT color="green">333</FONT>       * PersistenceContext @PersistenceContext}.<a name="line.333"></a>
-<FONT color="green">334</FONT>       *<a name="line.334"></a>
-<FONT color="green">335</FONT>       * @exception IllegalAccessException if there was a reflection<a name="line.335"></a>
-<FONT color="green">336</FONT>       * problem<a name="line.336"></a>
-<FONT color="green">337</FONT>       *<a name="line.337"></a>
-<FONT color="green">338</FONT>       * @exception InvocationTargetException if there was a reflection<a name="line.338"></a>
-<FONT color="green">339</FONT>       * problem<a name="line.339"></a>
-<FONT color="green">340</FONT>       */<a name="line.340"></a>
-<FONT color="green">341</FONT>      @Override<a name="line.341"></a>
-<FONT color="green">342</FONT>      public void before() throws IllegalAccessException, InvocationTargetException {<a name="line.342"></a>
-<FONT color="green">343</FONT>    <a name="line.343"></a>
-<FONT color="green">344</FONT>        // If there's no EntityManagerFactory yet, or a pre-existing one,<a name="line.344"></a>
-<FONT color="green">345</FONT>        // acquire a new one for this test.<a name="line.345"></a>
-<FONT color="green">346</FONT>        if (this.emf == null || !this.emf.isOpen()) {<a name="line.346"></a>
-<FONT color="green">347</FONT>          this.closeFactory = true;<a name="line.347"></a>
-<FONT color="green">348</FONT>          final Map&lt;?, ?&gt; entityManagerFactoryProperties = this.getEntityManagerFactoryProperties();<a name="line.348"></a>
-<FONT color="green">349</FONT>          if (entityManagerFactoryProperties == null || entityManagerFactoryProperties.isEmpty()) {<a name="line.349"></a>
-<FONT color="green">350</FONT>            this.emf = Persistence.createEntityManagerFactory(this.persistenceUnitName);<a name="line.350"></a>
-<FONT color="green">351</FONT>          } else {<a name="line.351"></a>
-<FONT color="green">352</FONT>            this.emf = Persistence.createEntityManagerFactory(this.persistenceUnitName, entityManagerFactoryProperties);<a name="line.352"></a>
-<FONT color="green">353</FONT>          }<a name="line.353"></a>
-<FONT color="green">354</FONT>        }<a name="line.354"></a>
-<FONT color="green">355</FONT>    <a name="line.355"></a>
-<FONT color="green">356</FONT>        if (this.emf != null &amp;&amp; this.emf.isOpen()) {<a name="line.356"></a>
-<FONT color="green">357</FONT>    <a name="line.357"></a>
-<FONT color="green">358</FONT>          // If for some crazy reason there's an open EntityManager<a name="line.358"></a>
-<FONT color="green">359</FONT>          // already installed, close it.<a name="line.359"></a>
-<FONT color="green">360</FONT>          if (this.em != null &amp;&amp; this.em.isOpen()) {<a name="line.360"></a>
-<FONT color="green">361</FONT>            this.em.close();<a name="line.361"></a>
-<FONT color="green">362</FONT>          }<a name="line.362"></a>
-<FONT color="green">363</FONT>    <a name="line.363"></a>
-<FONT color="green">364</FONT>          // Create a new EntityManager.<a name="line.364"></a>
-<FONT color="green">365</FONT>          if (this.entityManagerProperties == null || this.entityManagerProperties.isEmpty()) {<a name="line.365"></a>
-<FONT color="green">366</FONT>            this.em = this.emf.createEntityManager();<a name="line.366"></a>
-<FONT color="green">367</FONT>          } else {<a name="line.367"></a>
-<FONT color="green">368</FONT>            this.em = this.emf.createEntityManager(this.entityManagerProperties);<a name="line.368"></a>
-<FONT color="green">369</FONT>          }<a name="line.369"></a>
-<FONT color="green">370</FONT>    <a name="line.370"></a>
-<FONT color="green">371</FONT>          if (this.description != null) {<a name="line.371"></a>
-<FONT color="green">372</FONT>            final Class&lt;?&gt; testClass = description.getTestClass();<a name="line.372"></a>
-<FONT color="green">373</FONT>            if (testClass != null) {<a name="line.373"></a>
-<FONT color="green">374</FONT>    <a name="line.374"></a>
-<FONT color="green">375</FONT>              // Look for all @PersistenceContext-annotated fields in the<a name="line.375"></a>
-<FONT color="green">376</FONT>              // test class and its superclasses.  Set the just-created<a name="line.376"></a>
-<FONT color="green">377</FONT>              // EntityManager into all of them on the current test<a name="line.377"></a>
-<FONT color="green">378</FONT>              // instance.  Keep track of which fields were set so they<a name="line.378"></a>
-<FONT color="green">379</FONT>              // can be cleared in the after() method.<a name="line.379"></a>
-<FONT color="green">380</FONT>    <a name="line.380"></a>
-<FONT color="green">381</FONT>              final Collection&lt;Field&gt; fields = new ArrayList&lt;Field&gt;();<a name="line.381"></a>
-<FONT color="green">382</FONT>              Class&lt;?&gt; cls = testClass;<a name="line.382"></a>
-<FONT color="green">383</FONT>              while (cls != null) {<a name="line.383"></a>
-<FONT color="green">384</FONT>                final Field[] declaredFields = cls.getDeclaredFields();<a name="line.384"></a>
-<FONT color="green">385</FONT>                if (declaredFields != null &amp;&amp; declaredFields.length &gt; 0) {<a name="line.385"></a>
-<FONT color="green">386</FONT>                  for (final Field f : declaredFields) {<a name="line.386"></a>
-<FONT color="green">387</FONT>                    if (f != null &amp;&amp; EntityManager.class.isAssignableFrom(f.getType())) {<a name="line.387"></a>
-<FONT color="green">388</FONT>                      final PersistenceContext pc = f.getAnnotation(PersistenceContext.class);<a name="line.388"></a>
-<FONT color="green">389</FONT>                      if (pc != null) {<a name="line.389"></a>
-<FONT color="green">390</FONT>                        final boolean accessible = f.isAccessible();<a name="line.390"></a>
-<FONT color="green">391</FONT>                        try {<a name="line.391"></a>
-<FONT color="green">392</FONT>                          if (testClass.equals(f.getDeclaringClass())) {<a name="line.392"></a>
-<FONT color="green">393</FONT>                            f.setAccessible(true);<a name="line.393"></a>
-<FONT color="green">394</FONT>                          }<a name="line.394"></a>
-<FONT color="green">395</FONT>                          f.set(this.testInstance, this.em);<a name="line.395"></a>
-<FONT color="green">396</FONT>                          fields.add(f);<a name="line.396"></a>
-<FONT color="green">397</FONT>                        } catch (final SecurityException ohWell) {<a name="line.397"></a>
-<FONT color="green">398</FONT>                          // ignore<a name="line.398"></a>
-<FONT color="green">399</FONT>                        } finally {<a name="line.399"></a>
-<FONT color="green">400</FONT>                          f.setAccessible(accessible);<a name="line.400"></a>
-<FONT color="green">401</FONT>                        }<a name="line.401"></a>
-<FONT color="green">402</FONT>                      }<a name="line.402"></a>
-<FONT color="green">403</FONT>                    }<a name="line.403"></a>
-<FONT color="green">404</FONT>                  }<a name="line.404"></a>
-<FONT color="green">405</FONT>                }<a name="line.405"></a>
-<FONT color="green">406</FONT>                cls = cls.getSuperclass();<a name="line.406"></a>
-<FONT color="green">407</FONT>              }<a name="line.407"></a>
-<FONT color="green">408</FONT>              this.fields = fields;<a name="line.408"></a>
-<FONT color="green">409</FONT>            }<a name="line.409"></a>
-<FONT color="green">410</FONT>          }<a name="line.410"></a>
-<FONT color="green">411</FONT>        }<a name="line.411"></a>
-<FONT color="green">412</FONT>      }<a name="line.412"></a>
-<FONT color="green">413</FONT>    <a name="line.413"></a>
-<FONT color="green">414</FONT>      /**<a name="line.414"></a>
-<FONT color="green">415</FONT>       * Returns a {@link Map} that will be passed to the {@link<a name="line.415"></a>
-<FONT color="green">416</FONT>       * Persistence#createEntityManagerFactory(String, Map)} method to<a name="line.416"></a>
-<FONT color="green">417</FONT>       * create a new {@link EntityManagerFactory}.<a name="line.417"></a>
-<FONT color="green">418</FONT>       *<a name="line.418"></a>
-<FONT color="green">419</FONT>       * &lt;p&gt;Note that if an {@link H2Rule} has been passed to the<a name="line.419"></a>
-<FONT color="green">420</FONT>       * {@linkplain #JPARule(Object, String, H2Rule) relevant<a name="line.420"></a>
-<FONT color="green">421</FONT>       * constructor}, then the {@link Map} returned will be the return<a name="line.421"></a>
-<FONT color="green">422</FONT>       * value of the {@link H2Rule#getJPAProperties()} method.&lt;/p&gt;<a name="line.422"></a>
-<FONT color="green">423</FONT>       *<a name="line.423"></a>
-<FONT color="green">424</FONT>       * &lt;p&gt;This method may return {@code null}.&lt;/p&gt;<a name="line.424"></a>
-<FONT color="green">425</FONT>       *<a name="line.425"></a>
-<FONT color="green">426</FONT>       * @return a {@link Map} of {@link EntityManagerFactory} properties,<a name="line.426"></a>
-<FONT color="green">427</FONT>       * or {@code null}<a name="line.427"></a>
-<FONT color="green">428</FONT>       *<a name="line.428"></a>
-<FONT color="green">429</FONT>       * @see Persistence#createEntityManagerFactory(String, Map)<a name="line.429"></a>
-<FONT color="green">430</FONT>       * <a name="line.430"></a>
-<FONT color="green">431</FONT>       * @see H2Rule#getJPAProperties()<a name="line.431"></a>
-<FONT color="green">432</FONT>       */<a name="line.432"></a>
-<FONT color="green">433</FONT>      public Map&lt;?, ?&gt; getEntityManagerFactoryProperties() {<a name="line.433"></a>
-<FONT color="green">434</FONT>        final Map&lt;?, ?&gt; returnValue;<a name="line.434"></a>
-<FONT color="green">435</FONT>        if (this.h2Rule != null) {<a name="line.435"></a>
-<FONT color="green">436</FONT>          returnValue = this.h2Rule.getJPAProperties();<a name="line.436"></a>
-<FONT color="green">437</FONT>        } else {<a name="line.437"></a>
-<FONT color="green">438</FONT>          returnValue = this.entityManagerFactoryProperties;<a name="line.438"></a>
-<FONT color="green">439</FONT>        }<a name="line.439"></a>
-<FONT color="green">440</FONT>        return returnValue;<a name="line.440"></a>
-<FONT color="green">441</FONT>      }<a name="line.441"></a>
-<FONT color="green">442</FONT>    <a name="line.442"></a>
-<FONT color="green">443</FONT>      /**<a name="line.443"></a>
-<FONT color="green">444</FONT>       * Overrides the {@link ExternalResource#apply(Statement,<a name="line.444"></a>
-<FONT color="green">445</FONT>       * Description)} method to store the supplied {@link Description}<a name="line.445"></a>
-<FONT color="green">446</FONT>       * for usage by the {@link #before()} method internally and returns<a name="line.446"></a>
-<FONT color="green">447</FONT>       * the superclass' return value.<a name="line.447"></a>
-<FONT color="green">448</FONT>       *<a name="line.448"></a>
-<FONT color="green">449</FONT>       * &lt;p&gt;It must be assumed that this method may return {@code null}<a name="line.449"></a>
-<FONT color="green">450</FONT>       * since the superclass documentation does not mention whether the<a name="line.450"></a>
-<FONT color="green">451</FONT>       * return value must be non-{@code null}.&lt;/p&gt;<a name="line.451"></a>
-<FONT color="green">452</FONT>       *<a name="line.452"></a>
-<FONT color="green">453</FONT>       * @param base the {@link Statement} to decorate; the superclass<a name="line.453"></a>
-<FONT color="green">454</FONT>       * documentation does not define what behavior will occur if this<a name="line.454"></a>
-<FONT color="green">455</FONT>       * parameter is {@code null}<a name="line.455"></a>
-<FONT color="green">456</FONT>       *<a name="line.456"></a>
-<FONT color="green">457</FONT>       * @param description the {@link Description} describing the test<a name="line.457"></a>
-<FONT color="green">458</FONT>       * underway; the superclass documentation does not define what<a name="line.458"></a>
-<FONT color="green">459</FONT>       * behavior will occur if this parameter is {@code null}<a name="line.459"></a>
-<FONT color="green">460</FONT>       *<a name="line.460"></a>
-<FONT color="green">461</FONT>       * @return a {@link Statement}; possibly {@code null}<a name="line.461"></a>
-<FONT color="green">462</FONT>       *<a name="line.462"></a>
-<FONT color="green">463</FONT>       * @see #before()<a name="line.463"></a>
-<FONT color="green">464</FONT>       *<a name="line.464"></a>
-<FONT color="green">465</FONT>       * @see ExternalResource#apply(Statement, Description)<a name="line.465"></a>
-<FONT color="green">466</FONT>       */<a name="line.466"></a>
-<FONT color="green">467</FONT>      @Override<a name="line.467"></a>
-<FONT color="green">468</FONT>      public Statement apply(final Statement base, final Description description) {<a name="line.468"></a>
-<FONT color="green">469</FONT>        this.description = description;<a name="line.469"></a>
-<FONT color="green">470</FONT>        return super.apply(base, description);<a name="line.470"></a>
-<FONT color="green">471</FONT>      }<a name="line.471"></a>
-<FONT color="green">472</FONT>    <a name="line.472"></a>
-<FONT color="green">473</FONT>      /**<a name="line.473"></a>
-<FONT color="green">474</FONT>       * {@linkplain EntityTransaction#rollback() Rolls back} any<a name="line.474"></a>
-<FONT color="green">475</FONT>       * {@linkplain EntityTransaction#isActive() active} {@link<a name="line.475"></a>
-<FONT color="green">476</FONT>       * EntityTransaction}, {@linkplain EntityManager#close() closes} any<a name="line.476"></a>
-<FONT color="green">477</FONT>       * {@linkplain EntityManager#isOpen() open} {@link EntityManager},<a name="line.477"></a>
-<FONT color="green">478</FONT>       * sets all fields that were injected by the {@link #before()}<a name="line.478"></a>
-<FONT color="green">479</FONT>       * method to {@code null}, and closes any {@link<a name="line.479"></a>
-<FONT color="green">480</FONT>       * EntityManagerFactory} that was created by this {@link JPARule}.<a name="line.480"></a>
-<FONT color="green">481</FONT>       *<a name="line.481"></a>
-<FONT color="green">482</FONT>       * @see #before()<a name="line.482"></a>
-<FONT color="green">483</FONT>       */<a name="line.483"></a>
-<FONT color="green">484</FONT>      @Override<a name="line.484"></a>
-<FONT color="green">485</FONT>      public void after() {<a name="line.485"></a>
-<FONT color="green">486</FONT>        if (this.em != null &amp;&amp; this.em.isOpen()) {<a name="line.486"></a>
-<FONT color="green">487</FONT>          final EntityTransaction et = this.em.getTransaction();<a name="line.487"></a>
-<FONT color="green">488</FONT>          if (et != null &amp;&amp; et.isActive()) {<a name="line.488"></a>
-<FONT color="green">489</FONT>            et.rollback();<a name="line.489"></a>
-<FONT color="green">490</FONT>          }<a name="line.490"></a>
-<FONT color="green">491</FONT>          this.em.close();      <a name="line.491"></a>
-<FONT color="green">492</FONT>        }    <a name="line.492"></a>
-<FONT color="green">493</FONT>        this.em = null;<a name="line.493"></a>
-<FONT color="green">494</FONT>        if (this.fields != null &amp;&amp; !this.fields.isEmpty()) {<a name="line.494"></a>
-<FONT color="green">495</FONT>          for (final Field f : this.fields) {<a name="line.495"></a>
-<FONT color="green">496</FONT>            if (f != null) {<a name="line.496"></a>
-<FONT color="green">497</FONT>              final boolean old = f.isAccessible();<a name="line.497"></a>
-<FONT color="green">498</FONT>              try {<a name="line.498"></a>
-<FONT color="green">499</FONT>                f.setAccessible(true);<a name="line.499"></a>
-<FONT color="green">500</FONT>                f.set(this.testInstance, null);<a name="line.500"></a>
-<FONT color="green">501</FONT>              } catch (final IllegalAccessException wrapMe) {<a name="line.501"></a>
-<FONT color="green">502</FONT>                throw new RuntimeException(wrapMe);<a name="line.502"></a>
-<FONT color="green">503</FONT>              } finally {<a name="line.503"></a>
-<FONT color="green">504</FONT>                f.setAccessible(old);<a name="line.504"></a>
-<FONT color="green">505</FONT>              }<a name="line.505"></a>
-<FONT color="green">506</FONT>            }<a name="line.506"></a>
-<FONT color="green">507</FONT>          }<a name="line.507"></a>
-<FONT color="green">508</FONT>          this.fields = null;<a name="line.508"></a>
-<FONT color="green">509</FONT>        }<a name="line.509"></a>
-<FONT color="green">510</FONT>        if (this.closeFactory &amp;&amp; this.emf != null &amp;&amp; this.emf.isOpen()) {<a name="line.510"></a>
-<FONT color="green">511</FONT>          this.emf.close();<a name="line.511"></a>
-<FONT color="green">512</FONT>          this.closeFactory = false;<a name="line.512"></a>
-<FONT color="green">513</FONT>        }<a name="line.513"></a>
-<FONT color="green">514</FONT>        this.description = null;<a name="line.514"></a>
-<FONT color="green">515</FONT>      }<a name="line.515"></a>
-<FONT color="green">516</FONT>    <a name="line.516"></a>
-<FONT color="green">517</FONT>      /**<a name="line.517"></a>
-<FONT color="green">518</FONT>       * Forcibly closes any open {@link EntityManager}s and {@link<a name="line.518"></a>
-<FONT color="green">519</FONT>       * EntityManagerFactory} instances, thus releasing resources.<a name="line.519"></a>
-<FONT color="green">520</FONT>       *<a name="line.520"></a>
-<FONT color="green">521</FONT>       * &lt;p&gt;Most callers do not need to invoke this method.&lt;/p&gt;<a name="line.521"></a>
-<FONT color="green">522</FONT>       */<a name="line.522"></a>
-<FONT color="green">523</FONT>      public void close() {<a name="line.523"></a>
-<FONT color="green">524</FONT>        if (this.em != null) {<a name="line.524"></a>
-<FONT color="green">525</FONT>          this.em.close();<a name="line.525"></a>
-<FONT color="green">526</FONT>          this.em = null;<a name="line.526"></a>
-<FONT color="green">527</FONT>        }<a name="line.527"></a>
-<FONT color="green">528</FONT>        if (this.emf != null) {<a name="line.528"></a>
-<FONT color="green">529</FONT>          this.emf.close();<a name="line.529"></a>
-<FONT color="green">530</FONT>          this.emf = null;<a name="line.530"></a>
-<FONT color="green">531</FONT>        }<a name="line.531"></a>
-<FONT color="green">532</FONT>      }<a name="line.532"></a>
-<FONT color="green">533</FONT>    <a name="line.533"></a>
-<FONT color="green">534</FONT>      /**<a name="line.534"></a>
-<FONT color="green">535</FONT>       * Returns the {@link EntityManagerFactory} in effect.<a name="line.535"></a>
-<FONT color="green">536</FONT>       *<a name="line.536"></a>
-<FONT color="green">537</FONT>       * &lt;p&gt;This method may return {@code null}.&lt;/p&gt;<a name="line.537"></a>
-<FONT color="green">538</FONT>       *<a name="line.538"></a>
-<FONT color="green">539</FONT>       * @return the {@link EntityManagerFactory} in effect, or {@code<a name="line.539"></a>
-<FONT color="green">540</FONT>       * null}<a name="line.540"></a>
-<FONT color="green">541</FONT>       */<a name="line.541"></a>
-<FONT color="green">542</FONT>      public EntityManagerFactory getEntityManagerFactory() {<a name="line.542"></a>
-<FONT color="green">543</FONT>        return this.emf;<a name="line.543"></a>
-<FONT color="green">544</FONT>      }<a name="line.544"></a>
-<FONT color="green">545</FONT>    <a name="line.545"></a>
-<FONT color="green">546</FONT>      /**<a name="line.546"></a>
-<FONT color="green">547</FONT>       * Returns the {@link EntityManager} in effect.<a name="line.547"></a>
-<FONT color="green">548</FONT>       *<a name="line.548"></a>
-<FONT color="green">549</FONT>       * &lt;p&gt;This method may return {@code null}.&lt;/p&gt;<a name="line.549"></a>
-<FONT color="green">550</FONT>       *<a name="line.550"></a>
-<FONT color="green">551</FONT>       * @return the {@link EntityManager} in effect, or {@code null}<a name="line.551"></a>
-<FONT color="green">552</FONT>       */<a name="line.552"></a>
-<FONT color="green">553</FONT>      public EntityManager getEntityManager() {<a name="line.553"></a>
-<FONT color="green">554</FONT>        return this.em;<a name="line.554"></a>
-<FONT color="green">555</FONT>      }<a name="line.555"></a>
-<FONT color="green">556</FONT>    <a name="line.556"></a>
-<FONT color="green">557</FONT>    }<a name="line.557"></a>
+<FONT color="green">328</FONT>      /**<a name="line.328"></a>
+<FONT color="green">329</FONT>       * Creates an {@link EntityManager} and injects it into all fields<a name="line.329"></a>
+<FONT color="green">330</FONT>       * in the test instance that are of type {@code EntityManager} and<a name="line.330"></a>
+<FONT color="green">331</FONT>       * that are annotated with {@link<a name="line.331"></a>
+<FONT color="green">332</FONT>       * PersistenceContext @PersistenceContext}.<a name="line.332"></a>
+<FONT color="green">333</FONT>       *<a name="line.333"></a>
+<FONT color="green">334</FONT>       * @exception IllegalAccessException if there was a reflection<a name="line.334"></a>
+<FONT color="green">335</FONT>       * problem<a name="line.335"></a>
+<FONT color="green">336</FONT>       *<a name="line.336"></a>
+<FONT color="green">337</FONT>       * @exception InvocationTargetException if there was a reflection<a name="line.337"></a>
+<FONT color="green">338</FONT>       * problem<a name="line.338"></a>
+<FONT color="green">339</FONT>       */<a name="line.339"></a>
+<FONT color="green">340</FONT>      @Override<a name="line.340"></a>
+<FONT color="green">341</FONT>      public void before() throws IllegalAccessException, InvocationTargetException {<a name="line.341"></a>
+<FONT color="green">342</FONT>    <a name="line.342"></a>
+<FONT color="green">343</FONT>        // If there's no EntityManagerFactory yet, or a pre-existing one,<a name="line.343"></a>
+<FONT color="green">344</FONT>        // acquire a new one for this test.<a name="line.344"></a>
+<FONT color="green">345</FONT>        if (this.emf == null || !this.emf.isOpen()) {<a name="line.345"></a>
+<FONT color="green">346</FONT>          this.closeFactory = true;<a name="line.346"></a>
+<FONT color="green">347</FONT>          final Map&lt;?, ?&gt; entityManagerFactoryProperties = this.getEntityManagerFactoryProperties();<a name="line.347"></a>
+<FONT color="green">348</FONT>          if (entityManagerFactoryProperties == null || entityManagerFactoryProperties.isEmpty()) {<a name="line.348"></a>
+<FONT color="green">349</FONT>            this.emf = Persistence.createEntityManagerFactory(this.persistenceUnitName);<a name="line.349"></a>
+<FONT color="green">350</FONT>          } else {<a name="line.350"></a>
+<FONT color="green">351</FONT>            this.emf = Persistence.createEntityManagerFactory(this.persistenceUnitName, entityManagerFactoryProperties);<a name="line.351"></a>
+<FONT color="green">352</FONT>          }<a name="line.352"></a>
+<FONT color="green">353</FONT>        }<a name="line.353"></a>
+<FONT color="green">354</FONT>    <a name="line.354"></a>
+<FONT color="green">355</FONT>        if (this.emf != null &amp;&amp; this.emf.isOpen()) {<a name="line.355"></a>
+<FONT color="green">356</FONT>    <a name="line.356"></a>
+<FONT color="green">357</FONT>          // If for some crazy reason there's an open EntityManager<a name="line.357"></a>
+<FONT color="green">358</FONT>          // already installed, close it.<a name="line.358"></a>
+<FONT color="green">359</FONT>          if (this.em != null &amp;&amp; this.em.isOpen()) {<a name="line.359"></a>
+<FONT color="green">360</FONT>            this.em.close();<a name="line.360"></a>
+<FONT color="green">361</FONT>          }<a name="line.361"></a>
+<FONT color="green">362</FONT>    <a name="line.362"></a>
+<FONT color="green">363</FONT>          // Create a new EntityManager.<a name="line.363"></a>
+<FONT color="green">364</FONT>          if (this.entityManagerProperties == null || this.entityManagerProperties.isEmpty()) {<a name="line.364"></a>
+<FONT color="green">365</FONT>            this.em = this.emf.createEntityManager();<a name="line.365"></a>
+<FONT color="green">366</FONT>          } else {<a name="line.366"></a>
+<FONT color="green">367</FONT>            this.em = this.emf.createEntityManager(this.entityManagerProperties);<a name="line.367"></a>
+<FONT color="green">368</FONT>          }<a name="line.368"></a>
+<FONT color="green">369</FONT>    <a name="line.369"></a>
+<FONT color="green">370</FONT>          if (this.description != null) {<a name="line.370"></a>
+<FONT color="green">371</FONT>            final Class&lt;?&gt; testClass = description.getTestClass();<a name="line.371"></a>
+<FONT color="green">372</FONT>            if (testClass != null) {<a name="line.372"></a>
+<FONT color="green">373</FONT>    <a name="line.373"></a>
+<FONT color="green">374</FONT>              // Look for all @PersistenceContext-annotated fields in the<a name="line.374"></a>
+<FONT color="green">375</FONT>              // test class and its superclasses.  Set the just-created<a name="line.375"></a>
+<FONT color="green">376</FONT>              // EntityManager into all of them on the current test<a name="line.376"></a>
+<FONT color="green">377</FONT>              // instance.  Keep track of which fields were set so they<a name="line.377"></a>
+<FONT color="green">378</FONT>              // can be cleared in the after() method.<a name="line.378"></a>
+<FONT color="green">379</FONT>    <a name="line.379"></a>
+<FONT color="green">380</FONT>              final Collection&lt;Field&gt; fields = new ArrayList&lt;Field&gt;();<a name="line.380"></a>
+<FONT color="green">381</FONT>              Class&lt;?&gt; cls = testClass;<a name="line.381"></a>
+<FONT color="green">382</FONT>              while (cls != null) {<a name="line.382"></a>
+<FONT color="green">383</FONT>                final Field[] declaredFields = cls.getDeclaredFields();<a name="line.383"></a>
+<FONT color="green">384</FONT>                if (declaredFields != null &amp;&amp; declaredFields.length &gt; 0) {<a name="line.384"></a>
+<FONT color="green">385</FONT>                  for (final Field f : declaredFields) {<a name="line.385"></a>
+<FONT color="green">386</FONT>                    if (f != null &amp;&amp; EntityManager.class.isAssignableFrom(f.getType())) {<a name="line.386"></a>
+<FONT color="green">387</FONT>                      final PersistenceContext pc = f.getAnnotation(PersistenceContext.class);<a name="line.387"></a>
+<FONT color="green">388</FONT>                      if (pc != null) {<a name="line.388"></a>
+<FONT color="green">389</FONT>                        final boolean accessible = f.isAccessible();<a name="line.389"></a>
+<FONT color="green">390</FONT>                        try {<a name="line.390"></a>
+<FONT color="green">391</FONT>                          if (testClass.equals(f.getDeclaringClass())) {<a name="line.391"></a>
+<FONT color="green">392</FONT>                            f.setAccessible(true);<a name="line.392"></a>
+<FONT color="green">393</FONT>                          }<a name="line.393"></a>
+<FONT color="green">394</FONT>                          f.set(this.testInstance, this.em);<a name="line.394"></a>
+<FONT color="green">395</FONT>                          fields.add(f);<a name="line.395"></a>
+<FONT color="green">396</FONT>                        } catch (final SecurityException ohWell) {<a name="line.396"></a>
+<FONT color="green">397</FONT>                          // ignore<a name="line.397"></a>
+<FONT color="green">398</FONT>                        } finally {<a name="line.398"></a>
+<FONT color="green">399</FONT>                          f.setAccessible(accessible);<a name="line.399"></a>
+<FONT color="green">400</FONT>                        }<a name="line.400"></a>
+<FONT color="green">401</FONT>                      }<a name="line.401"></a>
+<FONT color="green">402</FONT>                    }<a name="line.402"></a>
+<FONT color="green">403</FONT>                  }<a name="line.403"></a>
+<FONT color="green">404</FONT>                }<a name="line.404"></a>
+<FONT color="green">405</FONT>                cls = cls.getSuperclass();<a name="line.405"></a>
+<FONT color="green">406</FONT>              }<a name="line.406"></a>
+<FONT color="green">407</FONT>              this.fields = fields;<a name="line.407"></a>
+<FONT color="green">408</FONT>            }<a name="line.408"></a>
+<FONT color="green">409</FONT>          }<a name="line.409"></a>
+<FONT color="green">410</FONT>        }<a name="line.410"></a>
+<FONT color="green">411</FONT>      }<a name="line.411"></a>
+<FONT color="green">412</FONT>    <a name="line.412"></a>
+<FONT color="green">413</FONT>      /**<a name="line.413"></a>
+<FONT color="green">414</FONT>       * Returns a {@link Map} that will be passed to the {@link<a name="line.414"></a>
+<FONT color="green">415</FONT>       * Persistence#createEntityManagerFactory(String, Map)} method to<a name="line.415"></a>
+<FONT color="green">416</FONT>       * create a new {@link EntityManagerFactory}.<a name="line.416"></a>
+<FONT color="green">417</FONT>       *<a name="line.417"></a>
+<FONT color="green">418</FONT>       * &lt;p&gt;Note that if an {@link H2Rule} has been passed to the<a name="line.418"></a>
+<FONT color="green">419</FONT>       * {@linkplain #JPARule(Object, String, H2Rule) relevant<a name="line.419"></a>
+<FONT color="green">420</FONT>       * constructor}, then the {@link Map} returned will be the return<a name="line.420"></a>
+<FONT color="green">421</FONT>       * value of the {@link H2Rule#getJPAProperties()} method.&lt;/p&gt;<a name="line.421"></a>
+<FONT color="green">422</FONT>       *<a name="line.422"></a>
+<FONT color="green">423</FONT>       * &lt;p&gt;This method may return {@code null}.&lt;/p&gt;<a name="line.423"></a>
+<FONT color="green">424</FONT>       *<a name="line.424"></a>
+<FONT color="green">425</FONT>       * @return a {@link Map} of {@link EntityManagerFactory} properties,<a name="line.425"></a>
+<FONT color="green">426</FONT>       * or {@code null}<a name="line.426"></a>
+<FONT color="green">427</FONT>       *<a name="line.427"></a>
+<FONT color="green">428</FONT>       * @see Persistence#createEntityManagerFactory(String, Map)<a name="line.428"></a>
+<FONT color="green">429</FONT>       * <a name="line.429"></a>
+<FONT color="green">430</FONT>       * @see H2Rule#getJPAProperties()<a name="line.430"></a>
+<FONT color="green">431</FONT>       */<a name="line.431"></a>
+<FONT color="green">432</FONT>      public Map&lt;?, ?&gt; getEntityManagerFactoryProperties() {<a name="line.432"></a>
+<FONT color="green">433</FONT>        final Map&lt;?, ?&gt; returnValue;<a name="line.433"></a>
+<FONT color="green">434</FONT>        if (this.h2Rule != null) {<a name="line.434"></a>
+<FONT color="green">435</FONT>          returnValue = this.h2Rule.getJPAProperties();<a name="line.435"></a>
+<FONT color="green">436</FONT>        } else {<a name="line.436"></a>
+<FONT color="green">437</FONT>          returnValue = this.entityManagerFactoryProperties;<a name="line.437"></a>
+<FONT color="green">438</FONT>        }<a name="line.438"></a>
+<FONT color="green">439</FONT>        return returnValue;<a name="line.439"></a>
+<FONT color="green">440</FONT>      }<a name="line.440"></a>
+<FONT color="green">441</FONT>    <a name="line.441"></a>
+<FONT color="green">442</FONT>      /**<a name="line.442"></a>
+<FONT color="green">443</FONT>       * Overrides the {@link ExternalResource#apply(Statement,<a name="line.443"></a>
+<FONT color="green">444</FONT>       * Description)} method to store the supplied {@link Description}<a name="line.444"></a>
+<FONT color="green">445</FONT>       * for usage by the {@link #before()} method internally and returns<a name="line.445"></a>
+<FONT color="green">446</FONT>       * the superclass' return value.<a name="line.446"></a>
+<FONT color="green">447</FONT>       *<a name="line.447"></a>
+<FONT color="green">448</FONT>       * &lt;p&gt;It must be assumed that this method may return {@code null}<a name="line.448"></a>
+<FONT color="green">449</FONT>       * since the superclass documentation does not mention whether the<a name="line.449"></a>
+<FONT color="green">450</FONT>       * return value must be non-{@code null}.&lt;/p&gt;<a name="line.450"></a>
+<FONT color="green">451</FONT>       *<a name="line.451"></a>
+<FONT color="green">452</FONT>       * @param base the {@link Statement} to decorate; the superclass<a name="line.452"></a>
+<FONT color="green">453</FONT>       * documentation does not define what behavior will occur if this<a name="line.453"></a>
+<FONT color="green">454</FONT>       * parameter is {@code null}<a name="line.454"></a>
+<FONT color="green">455</FONT>       *<a name="line.455"></a>
+<FONT color="green">456</FONT>       * @param description the {@link Description} describing the test<a name="line.456"></a>
+<FONT color="green">457</FONT>       * underway; the superclass documentation does not define what<a name="line.457"></a>
+<FONT color="green">458</FONT>       * behavior will occur if this parameter is {@code null}<a name="line.458"></a>
+<FONT color="green">459</FONT>       *<a name="line.459"></a>
+<FONT color="green">460</FONT>       * @return a {@link Statement}; possibly {@code null}<a name="line.460"></a>
+<FONT color="green">461</FONT>       *<a name="line.461"></a>
+<FONT color="green">462</FONT>       * @see #before()<a name="line.462"></a>
+<FONT color="green">463</FONT>       *<a name="line.463"></a>
+<FONT color="green">464</FONT>       * @see ExternalResource#apply(Statement, Description)<a name="line.464"></a>
+<FONT color="green">465</FONT>       */<a name="line.465"></a>
+<FONT color="green">466</FONT>      @Override<a name="line.466"></a>
+<FONT color="green">467</FONT>      public Statement apply(final Statement base, final Description description) {<a name="line.467"></a>
+<FONT color="green">468</FONT>        this.description = description;<a name="line.468"></a>
+<FONT color="green">469</FONT>        return super.apply(base, description);<a name="line.469"></a>
+<FONT color="green">470</FONT>      }<a name="line.470"></a>
+<FONT color="green">471</FONT>    <a name="line.471"></a>
+<FONT color="green">472</FONT>      /**<a name="line.472"></a>
+<FONT color="green">473</FONT>       * {@linkplain EntityTransaction#rollback() Rolls back} any<a name="line.473"></a>
+<FONT color="green">474</FONT>       * {@linkplain EntityTransaction#isActive() active} {@link<a name="line.474"></a>
+<FONT color="green">475</FONT>       * EntityTransaction}, {@linkplain EntityManager#close() closes} any<a name="line.475"></a>
+<FONT color="green">476</FONT>       * {@linkplain EntityManager#isOpen() open} {@link EntityManager},<a name="line.476"></a>
+<FONT color="green">477</FONT>       * sets all fields that were injected by the {@link #before()}<a name="line.477"></a>
+<FONT color="green">478</FONT>       * method to {@code null}, and closes any {@link<a name="line.478"></a>
+<FONT color="green">479</FONT>       * EntityManagerFactory} that was created by this {@link JPARule}.<a name="line.479"></a>
+<FONT color="green">480</FONT>       *<a name="line.480"></a>
+<FONT color="green">481</FONT>       * @see #before()<a name="line.481"></a>
+<FONT color="green">482</FONT>       */<a name="line.482"></a>
+<FONT color="green">483</FONT>      @Override<a name="line.483"></a>
+<FONT color="green">484</FONT>      public void after() {<a name="line.484"></a>
+<FONT color="green">485</FONT>        if (this.em != null &amp;&amp; this.em.isOpen()) {<a name="line.485"></a>
+<FONT color="green">486</FONT>          final EntityTransaction et = this.em.getTransaction();<a name="line.486"></a>
+<FONT color="green">487</FONT>          if (et != null &amp;&amp; et.isActive()) {<a name="line.487"></a>
+<FONT color="green">488</FONT>            et.rollback();<a name="line.488"></a>
+<FONT color="green">489</FONT>          }<a name="line.489"></a>
+<FONT color="green">490</FONT>          this.em.close();      <a name="line.490"></a>
+<FONT color="green">491</FONT>        }    <a name="line.491"></a>
+<FONT color="green">492</FONT>        this.em = null;<a name="line.492"></a>
+<FONT color="green">493</FONT>        if (this.fields != null &amp;&amp; !this.fields.isEmpty()) {<a name="line.493"></a>
+<FONT color="green">494</FONT>          for (final Field f : this.fields) {<a name="line.494"></a>
+<FONT color="green">495</FONT>            if (f != null) {<a name="line.495"></a>
+<FONT color="green">496</FONT>              final boolean old = f.isAccessible();<a name="line.496"></a>
+<FONT color="green">497</FONT>              try {<a name="line.497"></a>
+<FONT color="green">498</FONT>                f.setAccessible(true);<a name="line.498"></a>
+<FONT color="green">499</FONT>                f.set(this.testInstance, null);<a name="line.499"></a>
+<FONT color="green">500</FONT>              } catch (final IllegalAccessException wrapMe) {<a name="line.500"></a>
+<FONT color="green">501</FONT>                throw new RuntimeException(wrapMe);<a name="line.501"></a>
+<FONT color="green">502</FONT>              } finally {<a name="line.502"></a>
+<FONT color="green">503</FONT>                f.setAccessible(old);<a name="line.503"></a>
+<FONT color="green">504</FONT>              }<a name="line.504"></a>
+<FONT color="green">505</FONT>            }<a name="line.505"></a>
+<FONT color="green">506</FONT>          }<a name="line.506"></a>
+<FONT color="green">507</FONT>          this.fields = null;<a name="line.507"></a>
+<FONT color="green">508</FONT>        }<a name="line.508"></a>
+<FONT color="green">509</FONT>        if (this.closeFactory &amp;&amp; this.emf != null &amp;&amp; this.emf.isOpen()) {<a name="line.509"></a>
+<FONT color="green">510</FONT>          this.emf.close();<a name="line.510"></a>
+<FONT color="green">511</FONT>          this.closeFactory = false;<a name="line.511"></a>
+<FONT color="green">512</FONT>        }<a name="line.512"></a>
+<FONT color="green">513</FONT>        this.description = null;<a name="line.513"></a>
+<FONT color="green">514</FONT>      }<a name="line.514"></a>
+<FONT color="green">515</FONT>    <a name="line.515"></a>
+<FONT color="green">516</FONT>      /**<a name="line.516"></a>
+<FONT color="green">517</FONT>       * Forcibly closes any open {@link EntityManager}s and {@link<a name="line.517"></a>
+<FONT color="green">518</FONT>       * EntityManagerFactory} instances, thus releasing resources.<a name="line.518"></a>
+<FONT color="green">519</FONT>       *<a name="line.519"></a>
+<FONT color="green">520</FONT>       * &lt;p&gt;Most callers do not need to invoke this method.&lt;/p&gt;<a name="line.520"></a>
+<FONT color="green">521</FONT>       */<a name="line.521"></a>
+<FONT color="green">522</FONT>      public void close() {<a name="line.522"></a>
+<FONT color="green">523</FONT>        if (this.em != null) {<a name="line.523"></a>
+<FONT color="green">524</FONT>          this.em.close();<a name="line.524"></a>
+<FONT color="green">525</FONT>          this.em = null;<a name="line.525"></a>
+<FONT color="green">526</FONT>        }<a name="line.526"></a>
+<FONT color="green">527</FONT>        if (this.emf != null) {<a name="line.527"></a>
+<FONT color="green">528</FONT>          this.emf.close();<a name="line.528"></a>
+<FONT color="green">529</FONT>          this.emf = null;<a name="line.529"></a>
+<FONT color="green">530</FONT>        }<a name="line.530"></a>
+<FONT color="green">531</FONT>      }<a name="line.531"></a>
+<FONT color="green">532</FONT>    <a name="line.532"></a>
+<FONT color="green">533</FONT>      /**<a name="line.533"></a>
+<FONT color="green">534</FONT>       * Returns the {@link EntityManagerFactory} in effect.<a name="line.534"></a>
+<FONT color="green">535</FONT>       *<a name="line.535"></a>
+<FONT color="green">536</FONT>       * &lt;p&gt;This method may return {@code null}.&lt;/p&gt;<a name="line.536"></a>
+<FONT color="green">537</FONT>       *<a name="line.537"></a>
+<FONT color="green">538</FONT>       * @return the {@link EntityManagerFactory} in effect, or {@code<a name="line.538"></a>
+<FONT color="green">539</FONT>       * null}<a name="line.539"></a>
+<FONT color="green">540</FONT>       */<a name="line.540"></a>
+<FONT color="green">541</FONT>      public EntityManagerFactory getEntityManagerFactory() {<a name="line.541"></a>
+<FONT color="green">542</FONT>        return this.emf;<a name="line.542"></a>
+<FONT color="green">543</FONT>      }<a name="line.543"></a>
+<FONT color="green">544</FONT>    <a name="line.544"></a>
+<FONT color="green">545</FONT>      /**<a name="line.545"></a>
+<FONT color="green">546</FONT>       * Returns the {@link EntityManager} in effect.<a name="line.546"></a>
+<FONT color="green">547</FONT>       *<a name="line.547"></a>
+<FONT color="green">548</FONT>       * &lt;p&gt;This method may return {@code null}.&lt;/p&gt;<a name="line.548"></a>
+<FONT color="green">549</FONT>       *<a name="line.549"></a>
+<FONT color="green">550</FONT>       * @return the {@link EntityManager} in effect, or {@code null}<a name="line.550"></a>
+<FONT color="green">551</FONT>       */<a name="line.551"></a>
+<FONT color="green">552</FONT>      public EntityManager getEntityManager() {<a name="line.552"></a>
+<FONT color="green">553</FONT>        return this.em;<a name="line.553"></a>
+<FONT color="green">554</FONT>      }<a name="line.554"></a>
+<FONT color="green">555</FONT>    <a name="line.555"></a>
+<FONT color="green">556</FONT>    }<a name="line.556"></a>
 
 
 
