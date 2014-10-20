@@ -35,6 +35,8 @@ import java.net.URL;
 
 import liquibase.resource.ClassLoaderResourceAccessor;
 
+import liquibase.util.StreamUtil;
+
 /**
  * A {@link ClassLoaderResourceAccessor} that knows how to treat
  * resource requests as {@link String} representations of {@link
@@ -48,14 +50,18 @@ import liquibase.resource.ClassLoaderResourceAccessor;
  * @see URL#URL(String)
  *
  * @see URL#openStream()
+ *
+ * @deprecated Please use the {@link
+ * com.edugility.liquibase.URLResourceAccessor} class instead.
  */
-public class URLResourceAccessor extends ClassLoaderResourceAccessor {
+@Deprecated
+public class URLResourceAccessor extends com.edugility.liquibase.URLResourceAccessor {
 
   /**
    * Creates a new {@link URLResourceAccessor}.
    */
   public URLResourceAccessor() {
-    this(Thread.currentThread().getContextClassLoader());
+    super(new ClassLoaderResourceAccessor());
   }
 
   /**
@@ -68,7 +74,7 @@ public class URLResourceAccessor extends ClassLoaderResourceAccessor {
    * superclass constructor} as-is; must not be {@code null}
    */
   public URLResourceAccessor(final ClassLoader classLoader) {
-    super(classLoader);
+    super(new ClassLoaderResourceAccessor(classLoader));
   }
 
   /**
@@ -95,20 +101,8 @@ public class URLResourceAccessor extends ClassLoaderResourceAccessor {
    *
    * @see ClassLoaderResourceAccessor#getResourceAsStream(String)
    */
-  @Override
   public InputStream getResourceAsStream(final String name) throws IOException {
-    InputStream returnValue = null;
-    if (name != null) {
-      try {
-        returnValue = new URL(name).openStream();
-      } catch (final MalformedURLException ignore) {
-        returnValue = null;
-      }
-    }
-    if (returnValue == null) {
-      returnValue = super.getResourceAsStream(name);
-    }
-    return returnValue;
+    return StreamUtil.singleInputStream(name, this);
   }
 
 }

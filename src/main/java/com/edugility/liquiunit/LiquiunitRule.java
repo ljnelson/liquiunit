@@ -35,6 +35,8 @@ import java.util.Iterator;
 
 import javax.sql.DataSource;
 
+import com.edugility.liquibase.URLResourceAccessor;
+
 import liquibase.Liquibase;
 
 import liquibase.changelog.ChangeLogHistoryService;
@@ -54,6 +56,7 @@ import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
 
 import liquibase.resource.CompositeResourceAccessor;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 
@@ -203,7 +206,17 @@ public class LiquiunitRule extends ExternalResource {
     this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + Arrays.asList(contexts));
     this.dataSource = dataSource;
     this.setChangeLogResourceName("changelog.xml");
-    this.setResourceAccessor(new CompositeResourceAccessor(new URLResourceAccessor(Thread.currentThread().getContextClassLoader()), new FileSystemResourceAccessor(System.getProperty("user.dir"))));
+    final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    final ClassLoaderResourceAccessor delegate = new ClassLoaderResourceAccessor(contextClassLoader);
+    // See https://liquibase.jira.com/browse/CORE-2076 for why all
+    // this stuff is necessary with Liquibase 3.2.2.
+    final URLResourceAccessor accessor = new URLResourceAccessor(delegate) {
+        @Override
+        public final ClassLoader toClassLoader() {
+          return contextClassLoader;
+        }
+      };
+    this.setResourceAccessor(new CompositeResourceAccessor(accessor, new FileSystemResourceAccessor(System.getProperty("user.dir"))));
     if (contexts != null && contexts.length > 0) {
       this.setContexts(Arrays.asList(contexts));
     }
@@ -565,7 +578,7 @@ public class LiquiunitRule extends ExternalResource {
    */
   protected boolean shouldUpdate(final Liquibase liquibase) throws LiquibaseException, SQLException {
     this.logger.debug("Entering shouldUpdate(Liquibase); parameters: liquibase = " + liquibase);
-    boolean returnValue = liquibase != null && !"false".equals(System.getProperty(Liquibase.SHOULD_RUN_SYSTEM_PROPERTY));
+    boolean returnValue = liquibase != null && !"false".equals(System.getProperty("liquibase.should.run"));
     if (returnValue) {
       final Database database = liquibase.getDatabase();
       if (database != null) {
