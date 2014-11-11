@@ -61,6 +61,8 @@ import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.resource.ResourceAccessor;
 
 import org.junit.rules.ExternalResource;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * An {@link ExternalResource} that performs a <a
@@ -77,6 +79,12 @@ import org.junit.rules.ExternalResource;
  * @see ExternalResource
  */
 public class LiquiunitRule extends ExternalResource {
+
+
+  /*
+   * Instance fields.
+   */
+
 
   /**
    * The {@link Logger} to use for debugging and tracing purposes.
@@ -164,6 +172,12 @@ public class LiquiunitRule extends ExternalResource {
    */
   private ResourceAccessor resourceAccessor;
 
+  
+  /*
+   * Constructors.
+   */
+
+
   /**
    * Creates a new {@link LiquiunitRule}.
    *
@@ -206,22 +220,19 @@ public class LiquiunitRule extends ExternalResource {
     this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + Arrays.asList(contexts));
     this.dataSource = dataSource;
     this.setChangeLogResourceName("changelog.xml");
-    final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-    final ClassLoaderResourceAccessor delegate = new ClassLoaderResourceAccessor(contextClassLoader);
-    // See https://liquibase.jira.com/browse/CORE-2076 for why all
-    // this stuff is necessary with Liquibase 3.2.2.
-    final URLResourceAccessor accessor = new URLResourceAccessor(delegate) {
-        @Override
-        public final ClassLoader toClassLoader() {
-          return contextClassLoader;
-        }
-      };
+    final URLResourceAccessor accessor = new URLResourceAccessor(new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader()));
     this.setResourceAccessor(new CompositeResourceAccessor(accessor, new FileSystemResourceAccessor(System.getProperty("user.dir"))));
     if (contexts != null && contexts.length > 0) {
       this.setContexts(Arrays.asList(contexts));
     }
     this.logger.debug("Exiting LiquiunitRule(DataSource, String[])");
   }
+
+
+  /*
+   * Instance methods.
+   */
+
 
   /**
    * Returns the {@linkplain ClassLoader#getResource(String) classpath
@@ -553,11 +564,10 @@ public class LiquiunitRule extends ExternalResource {
    * should in fact have its {@link Liquibase#update(String)} method
    * called.
    *
-   * <p>This implementation returns {@code true} if the {@link
-   * Liquibase#SHOULD_RUN_SYSTEM_PROPERTY} system property is
-   * non-{@code null} and set to something other than {@code false}
-   * and if the supplied {@link Liquibase} instance is non-{@code
-   * null} and {@linkplain
+   * <p>This implementation returns {@code true} if the {@code
+   * liquibase.should.run} system property is non-{@code null} and set
+   * to something other than {@code false} and if the supplied {@link
+   * Liquibase} instance is non-{@code null} and {@linkplain
    * StandardChangeLogHistoryService#hasDatabaseChangeLogTable() is
    * connected to a database that does not yet have a
    * <code>DATABASECHANGELOG</code> table} in it.</p>
@@ -588,6 +598,31 @@ public class LiquiunitRule extends ExternalResource {
     }
     this.logger.debug("Exiting shouldUpdate(Liquibase); returning: " + returnValue);
     return returnValue;
+  }
+
+
+  /*
+   * Static methods.
+   */
+
+
+  public static final TestRule newInstance() {
+    return newInstance(null, new H2Rule());
+  }
+
+  public static final TestRule newInstance(final String changeLogResourceName, DataSource dataSource, final String... contexts) {
+    if (dataSource == null) {
+      dataSource = new H2Rule();
+    }
+    final LiquiunitRule liquibase = new LiquiunitRule(dataSource, contexts);
+    if (changeLogResourceName != null) {
+      liquibase.setChangeLogResourceName(changeLogResourceName);
+    }    
+    if (dataSource instanceof TestRule) {
+      return RuleChain.outerRule((TestRule)dataSource).around(liquibase);
+    } else {
+      return liquibase;
+    }
   }
 
 }

@@ -68,8 +68,7 @@ public class URLResourceAccessor extends com.edugility.liquibase.URLResourceAcce
    * Creates a new {@link URLResourceAccessor}.
    *
    * @param classLoader the {@link ClassLoader} to use in implementing
-   * the {@link #getResources(String)} method; passed to the
-   * {@linkplain
+   * the {@link #toClassLoader()} method; passed to the {@linkplain
    * ClassLoaderResourceAccessor#ClassLoaderResourceAccessor(ClassLoader)
    * superclass constructor} as-is; must not be {@code null}
    */
@@ -99,7 +98,7 @@ public class URLResourceAccessor extends com.edugility.liquibase.URLResourceAcce
    * @exception IOException if a problem was encountered {@linkplain
    * URL#openStream() opening a stream}
    *
-   * @see ClassLoaderResourceAccessor#getResourceAsStream(String)
+   * @see ClassLoaderResourceAccessor#getResourcesAsStream(String)
    */
   public InputStream getResourceAsStream(final String name) throws IOException {
     return StreamUtil.singleInputStream(name, this);

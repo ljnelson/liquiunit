@@ -38,9 +38,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceContext;
 
+import org.dbunit.ext.h2.H2DataTypeFactory;
+
 import org.junit.rules.ExternalResource;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 import org.junit.runner.Description;
 
@@ -103,6 +108,8 @@ public class JPARule extends ExternalResource {
    * <p>This field may be {@code null}.</p>
    */
   private EntityManager em;
+
+  private EntityTransaction et;
 
   /**
    * The {@link EntityManagerFactory} in effect for the current test.
@@ -383,20 +390,22 @@ public class JPARule extends ExternalResource {
             final Field[] declaredFields = cls.getDeclaredFields();
             if (declaredFields != null && declaredFields.length > 0) {
               for (final Field f : declaredFields) {
-                if (f != null && EntityManager.class.isAssignableFrom(f.getType())) {
-                  final PersistenceContext pc = f.getAnnotation(PersistenceContext.class);
-                  if (pc != null) {
-                    final boolean accessible = f.isAccessible();
-                    try {
-                      if (testClass.equals(f.getDeclaringClass())) {
-                        f.setAccessible(true);
+                if (f != null) {
+                  if (EntityManager.class.isAssignableFrom(f.getType())) {
+                    final PersistenceContext pc = f.getAnnotation(PersistenceContext.class);
+                    if (pc != null) {
+                      final boolean accessible = f.isAccessible();
+                      try {
+                        if (testClass.equals(f.getDeclaringClass())) {
+                          f.setAccessible(true);
+                        }
+                        f.set(this.testInstance, this.em);
+                        fields.add(f);
+                      } catch (final SecurityException ohWell) {
+                        // ignore
+                      } finally {
+                        f.setAccessible(accessible);
                       }
-                      f.set(this.testInstance, this.em);
-                      fields.add(f);
-                    } catch (final SecurityException ohWell) {
-                      // ignore
-                    } finally {
-                      f.setAccessible(accessible);
                     }
                   }
                 }
@@ -406,6 +415,12 @@ public class JPARule extends ExternalResource {
           }
           this.fields = fields;
         }
+      }
+
+      assert this.em != null;
+      this.et = this.em.getTransaction();
+      if (et != null) {
+        et.begin();
       }
     }
   }
@@ -482,6 +497,13 @@ public class JPARule extends ExternalResource {
    */
   @Override
   public void after() {
+    if (this.et != null) {
+      try {
+        this.et.rollback();
+      } catch (final PersistenceException ohWell) {
+        ohWell.printStackTrace();
+      }
+    }
     if (this.em != null && this.em.isOpen()) {
       final EntityTransaction et = this.em.getTransaction();
       if (et != null && et.isActive()) {
@@ -551,6 +573,34 @@ public class JPARule extends ExternalResource {
    */
   public EntityManager getEntityManager() {
     return this.em;
+  }
+
+  /**
+   * A convenience "fire-and-forget" method that returns a {@link
+   * TestRule} constructed in the following manner:
+   *
+   * <blockquote><pre>final H2Rule h2 = new H2Rule(archive);
+   *final LiquiunitRule liquibase = new LiquiunitRule(h2);
+   *final DataSourceDatabaseTesterRule dbUnit = new DataSourceDatabaseTesterRule(h2, new H2DataTypeFactory());
+   *final TestRule jpaRule = new JPARule(this, "test", h2);
+   *return RuleChain.outerRule(h2).around(liquibase).around(dbUnit).around(jpaRule);</pre></blockquote>
+   *
+   * @param testInstance the JUnit test instance being set up; should
+   * not be {@code null}
+   * 
+   * @param archive an {@link H2Archive} to store the "blank" state of
+   * the underlying in-memory H2 database; may be {@code null}
+   * 
+   * @return a non-{@code null} {@link TestRule} set up for
+   * JPA-oriented testing
+   */
+  public static TestRule typical(final Object testInstance, final H2Archive archive) {
+    final H2Rule h2 = new H2Rule(archive);
+    final LiquiunitRule liquibase = new LiquiunitRule(h2);
+    final DataSourceDatabaseTesterRule dbUnit = new DataSourceDatabaseTesterRule(h2, new H2DataTypeFactory());
+    final TestRule jpaRule = new JPARule(testInstance, "test", h2);
+    // H2, then Liquibase, then dbUnit, then JPA.
+    return RuleChain.outerRule(h2).around(liquibase).around(dbUnit).around(jpaRule);
   }
 
 }
