@@ -1,0 +1,14 @@
+<map id="G" name="G">
+<area shape="rect" id="node1_0" href="./LiquiunitRule.html" title="com.edugility.liquiunit.LiquiunitRule" alt="" coords="15,11,665,277"/>
+<area shape="rect" id="node1" href="./LiquiunitRule.html" title="&lt;TABLE&gt;" alt="" coords="5,6,675,282"/>
+<area shape="rect" id="node2_1" href="./JPARule.html" title="com.edugility.liquiunit.JPARule" alt="" coords="710,11,1602,277"/>
+<area shape="rect" id="node2" href="./JPARule.html" title="&lt;TABLE&gt;" alt="" coords="699,6,1613,282"/>
+<area shape="rect" id="node3_2" href="./H2Rule.html" title="com.edugility.liquiunit.H2Rule" alt="" coords="900,337,1412,730"/>
+<area shape="rect" id="node3" href="./H2Rule.html" title="&lt;TABLE&gt;" alt="" coords="889,331,1423,735"/>
+<area shape="rect" id="node4_3" href="./H2Archive.html" title="com.edugility.liquiunit.H2Archive" alt="" coords="938,790,1374,911"/>
+<area shape="rect" id="node4" href="./H2Archive.html" title="&lt;TABLE&gt;" alt="" coords="927,785,1385,917"/>
+<area shape="rect" id="node5_4" href="./DriverManagerDataSource.html" title="com.edugility.liquiunit.DriverManagerDataSource" alt="" coords="1647,19,2129,269"/>
+<area shape="rect" id="node5" href="./DriverManagerDataSource.html" title="&lt;TABLE&gt;" alt="" coords="1637,14,2139,274"/>
+<area shape="rect" id="node6_5" href="./DataSourceDatabaseTesterRule.html" title="com.edugility.liquiunit.DataSourceDatabaseTesterRule" alt="" coords="2174,27,2877,261"/>
+<area shape="rect" id="node6" href="./DataSourceDatabaseTesterRule.html" title="&lt;TABLE&gt;" alt="" coords="2163,22,2887,266"/>
+</map>
