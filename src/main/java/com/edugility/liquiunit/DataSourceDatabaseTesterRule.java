@@ -27,6 +27,8 @@
  */
 package com.edugility.liquiunit;
 
+import java.io.Closeable;
+import java.io.InputStream;
 import java.io.IOException;
 
 import java.net.URL;
@@ -103,7 +105,20 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
    */
   private IDataSet oldDataSet;
 
+  /**
+   * The {@link InputStream} used to {@linkplain #createDataSet(URL)
+   * logically open an <code>IDataSet</code>}, stored here as a {@link
+   * Closeable}.
+   *
+   * <p>This field may be {@code null}.</p>
+   *
+   * @see #createDataSet(URL)
+   *
+   * @see #closeDataSet()
+   */
+  private Closeable dataSetInputStream;
 
+  
   /*
    * Constructors.
    */
@@ -262,7 +277,7 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
    * immediately before invoking the {@link IDatabaseTester#onSetup()}
    * method.
    *
-   * @exception if an error occurs
+   * @exception Exception if an error occurs
    */
   @Override
   public void before() throws Exception {
@@ -294,6 +309,12 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
         throw throwMe;
       } catch (final Exception everythingElse) {
         throw new RuntimeException(everythingElse); // TODO: ugly
+      } finally {
+        try {
+          this.closeDataSet();
+        } catch (final IOException ignore) {
+
+        }
       }
       this.tester.setDataSet(this.oldDataSet);
     }
@@ -341,9 +362,9 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
    * #DataSourceDatabaseTesterRule(DataSource) construction time} to
    * see if {@linkplain DataSourceDatabaseTester#getDataSet() it
    * already has a <code>IDataSet</code> implementation installed}.
-   * If so, then no further action is taken and {@code null} is
-   * returned.  {@code null} is also returned if the supplied {@code
-   * description} is {@code null}.<p>
+   * If so, then no further action is taken and that {@link IDataSet}
+   * is returned.  ({@code null} is returned if the supplied {@code
+   * description} is {@code null}.)</p>
    *
    * <p>Otherwise, a {@linkplain ClassLoader#getResource(String)
    * classpath resource} named {@code
@@ -361,8 +382,9 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
    * where {@code SIMPLE_TEST_CLASS_NAME} is the name of the JUnit
    * test {@link Class} currently running.</p>
    *
-   * <p>Once a resource is located in this manner, a new {@link
-   * XmlDataSet} is constructed from it and returned.</p>
+   * <p>Once a resource is located in this manner, its {@link URL} is
+   * passed to the {@link #createDataSet(URL)} method, and that
+   * method's return value is returned.</p>
    *
    * <p>If no resource exists, then {@code null} is returned.</p>
    *
@@ -376,10 +398,14 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
    * the {@link IDataSet}
    *
    * @exception IOException if there was an input/output error
+   *
+   * @see #createDataSet(URL)
    */
   protected IDataSet getDataSet(final Description description) throws DataSetException, IOException {
-    IDataSet returnValue = null;
-    if (this.tester != null) {
+    final IDataSet returnValue;
+    if (this.tester == null) {
+      returnValue = null;
+    } else {
       final IDataSet old = this.tester.getDataSet();
       if (old == null && description != null) {
         final String simpleClassName;
@@ -402,12 +428,66 @@ public class DataSourceDatabaseTesterRule extends ExternalResource {
         if (url == null) {
           url = cl.getResource(String.format("datasets/%s.xml", simpleClassName));
         }
-        if (url != null) {
-          returnValue = new XmlDataSet(url.openStream());
-        }
+        returnValue = this.createDataSet(url);
+      } else {
+        returnValue = old;
       }
     }
     return returnValue;
   }
 
+  /**
+   * Creates a new {@link IDataSet} implementation suitable for the
+   * supplied {@link URL} and returns it.
+   *
+   * <p>This method may return {@code null}.</p>
+   *
+   * <p>Overrides of this method are permitted to return {@code
+   * null}.</p>
+   *
+   * <p>This implementation returns {@code null} if a {@code null}
+   * {@link URL} is supplied.  Otherwise, a new {@link XmlDataSet} is
+   * constructed with the {@linkplain URL#openStream() supplied
+   * <code>URL</code>'s affiliated <code>InputStream</code>} and
+   * returned.</p>
+   *
+   * @param url the {@link URL} for which a new {@link IDataSet}
+   * implementation should be returned; may be {@code null}
+   *
+   * @return a new {@link IDataSet} implementation, or {@code null}
+   *
+   * @exception DataSetException if an error occurs during {@link
+   * IDataSet} construction
+   *
+   * @exception IOException if an error occurs during the processing
+   * of the supplied {@link URL}
+   *
+   * @see #getDataSet(Description)
+   */
+  protected IDataSet createDataSet(final URL url) throws DataSetException, IOException {
+    final IDataSet returnValue;
+    if (url == null) {
+      returnValue = null;
+    } else {
+      final InputStream stream = url.openStream();
+      this.dataSetInputStream = stream;
+      returnValue = new XmlDataSet(stream);
+    }
+    return returnValue;
+  }
+
+  /**
+   * Notionally closes any resources held by the {@link IDataSet}
+   * created by the {@link #createDataSet(URL)} method.
+   *
+   * @exception IOException if an error occurs during closing
+   *
+   * @see #createDataSet(URL)
+   */
+  protected void closeDataSet() throws IOException {
+    if (this.dataSetInputStream != null) {
+      this.dataSetInputStream.close();
+    }
+  }
+  
 }

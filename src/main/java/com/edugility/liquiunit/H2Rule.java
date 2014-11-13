@@ -102,8 +102,6 @@ public class H2Rule extends ExternalResource implements DataSource {
    *
    * <p>This field may be {@code null}.</p>
    *
-   * @see #getPassword()
-   *
    * @see #getConnection(String, String)
    */
   private final String password;

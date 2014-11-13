@@ -419,8 +419,8 @@ public class JPARule extends ExternalResource {
 
       assert this.em != null;
       this.et = this.em.getTransaction();
-      if (et != null) {
-        et.begin();
+      if (this.et != null) {
+        this.et.begin();
       }
     }
   }
@@ -497,12 +497,13 @@ public class JPARule extends ExternalResource {
    */
   @Override
   public void after() {
-    if (this.et != null) {
+    if (this.et != null && this.et.isActive()) {
       try {
         this.et.rollback();
       } catch (final PersistenceException ohWell) {
         ohWell.printStackTrace();
       }
+      this.et = null;
     }
     if (this.em != null && this.em.isOpen()) {
       final EntityTransaction et = this.em.getTransaction();

@@ -217,7 +217,18 @@ public class LiquiunitRule extends ExternalResource {
     super();
     this.logger = LogFactory.getInstance().getLog("liquiunit");
     assert this.logger != null;
-    this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + Arrays.asList(contexts));
+    String logLevel = System.getProperty("liquiunit.logLevel", "").trim();
+    if (!logLevel.isEmpty()) {
+      this.logger.setLogLevel(logLevel);
+    }
+    logLevel = System.getProperty("liquibase.logLevel", "").trim();
+    if (!logLevel.isEmpty()) {
+      final Logger logger = LogFactory.getInstance().getLog();
+      if (logger != null) {
+        logger.setLogLevel(logLevel);
+      }
+    }
+    this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + (contexts == null ? "null" : Arrays.asList(contexts)));
     this.dataSource = dataSource;
     this.setChangeLogResourceName("changelog.xml");
     final URLResourceAccessor accessor = new URLResourceAccessor(new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader()));

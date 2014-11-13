@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <prerequisites>
-    <maven>3.0.4</maven>
+    <maven>3.0.5</maven>
   </prerequisites>
 
   <groupId>com.edugility</groupId>
@@ -73,7 +73,7 @@
     <dependency>
       <groupId>com.edugility</groupId>
       <artifactId>liquibase-extensions</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
 
     <dependency>
@@ -100,7 +100,7 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>3.2.2</version>
+      <version>3.3.0</version>
       <scope>compile</scope>
     </dependency>
 
@@ -144,6 +144,7 @@
       <plugin>
         <groupId>com.github.github</groupId>
         <artifactId>site-maven-plugin</artifactId>
+        <version>0.10</version>
       </plugin>
 
     </plugins>
@@ -171,8 +172,12 @@
     <maven.compiler.target>1.6</maven.compiler.target>
 
     <!-- maven-javadoc-plugin properties -->
-    <links>http://www.liquibase.org/javadoc/,http://junit.org/javadoc/4.10/,http://www.dbunit.org/apidocs/,http://docs.oracle.com/javaee/6/api/</links>
+    <links>http://www.liquibase.org/javadoc/,http://junit.org/apidocs/,http://www.dbunit.org/apidocs/,http://docs.oracle.com/javaee/6/api/</links>
+    <umlGraphVersion>5.6.6</umlGraphVersion>
 
+    <!-- maven-release-plugin properties -->
+    <goals>deploy site-deploy</goals>
+    
   </properties>
 
   <reporting>
@@ -180,7 +185,64 @@
 
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${mavenJavadocPluginVersion}</version>
+        <configuration>
+          <additionalparam>
+            -all
+            -collpackages "java.util.*"
+            -hide "java.*"
+            -inferrel
+            -qualify
+            -views
+          </additionalparam>
+          <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+          <docletArtifact>
+            <groupId>org.umlgraph</groupId>
+            <artifactId>umlgraph</artifactId>
+            <version>${umlGraphVersion}</version>
+          </docletArtifact>
+          <groups>
+            <group>
+              <title>Core API</title>
+              <packages>com.edugility.liquiunit</packages>
+            </group>
+          </groups>
+          <tags>
+            <tag>
+              <name>depend</name>
+              <placement>X</placement>
+            </tag>
+            <tag>
+              <name>note</name>
+              <placement>a</placement>
+            </tag>
+            <tag>
+              <name>opt</name>
+              <placement>a</placement>
+            </tag>
+            <tag>
+              <name>hidden</name>
+              <placement>a</placement>
+            </tag>
+            <tag>
+              <name>navassoc</name>
+              <placement>a</placement>
+            </tag>
+            <tag>
+              <name>assoc</name>
+              <placement>a</placement>
+            </tag>
+            <tag>
+              <name>has</name>
+              <placement>a</placement>
+            </tag>
+            <tag>
+              <name>stereotype</name>
+              <placement>a</placement>
+              <head>Stereotypes:</head>
+            </tag>
+          </tags>
+          <useStandardDocletOptions>true</useStandardDocletOptions>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -195,7 +257,7 @@
       </plugin>
 
     </plugins>
+    
   </reporting>
-
 
 </project>
