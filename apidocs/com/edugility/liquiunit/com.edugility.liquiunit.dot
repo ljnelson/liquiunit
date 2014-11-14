@@ -19,18 +19,20 @@ digraph G {
 		</table></td></tr>
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="left" balign="left"> + LiquiunitRule(dataSource : DataSource, contexts : String[]) </td></tr>
-<tr><td align="left" balign="left"> + getChangeLogResourceName() : String </td></tr>
-<tr><td align="left" balign="left"> + setChangeLogResourceName(name : String) </td></tr>
+<tr><td align="left" balign="left"> + getChangeLogResourceNames() : Iterable&lt;?&gt; </td></tr>
+<tr><td align="left" balign="left"> + setChangeLogResourceNames(names : Iterable&lt;?&gt;) </td></tr>
 <tr><td align="left" balign="left"> + getContexts() : Iterable&lt;?&gt; </td></tr>
 <tr><td align="left" balign="left"> + setContexts(contexts : Iterable&lt;?&gt;) </td></tr>
 <tr><td align="left" balign="left"> # before() </td></tr>
 <tr><td align="left" balign="left"> # createLiquibase(database : Database) : Liquibase </td></tr>
 <tr><td align="left" balign="left"> # changeLogResourceExists() : boolean </td></tr>
+<tr><td align="left" balign="left"> # changeLogResourceExists(changeLogResourceName : String) : boolean </td></tr>
 <tr><td align="left" balign="left"> + getResourceAccessor() : ResourceAccessor </td></tr>
 <tr><td align="left" balign="left"> + setResourceAccessor(resourceAccessor : ResourceAccessor) </td></tr>
 <tr><td align="left" balign="left"> # shouldUpdate(liquibase : Liquibase) : boolean </td></tr>
 <tr><td align="left" balign="left"> + newInstance() : TestRule </td></tr>
 <tr><td align="left" balign="left"> + newInstance(changeLogResourceName : String, dataSource : DataSource, contexts : String[]) : TestRule </td></tr>
+<tr><td align="left" balign="left"> + newInstance(changeLogResourceNames : Iterable&lt;?&gt;, dataSource : DataSource, contexts : String[]) : TestRule </td></tr>
 		</table></td></tr>
 		</table>>, URL="./LiquiunitRule.html", fontname="Helvetica", fontcolor="black", fontsize=10.0];
 	// com.edugility.liquiunit.JPARule
