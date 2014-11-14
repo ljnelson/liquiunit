@@ -183,7 +183,7 @@ public class LiquiunitRule extends ExternalResource {
    *
    * <p>The new {@link LiquiunitRule} will have a {@linkplain
    * #getChangeLogResourceName changelog resource name} of "{@code
-   * changelog.xml}", and a {@link #getResourceAccessor()
+   * META-INF/liquibase/changelog.xml}", and a {@link #getResourceAccessor()
    * ResourceAccessor} {@linkplain
    * #setResourceAccessor(ResourceAccessor) initialized} with the
    * following code:</p>
@@ -230,7 +230,7 @@ public class LiquiunitRule extends ExternalResource {
     }
     this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + (contexts == null ? "null" : Arrays.asList(contexts)));
     this.dataSource = dataSource;
-    this.setChangeLogResourceName("changelog.xml");
+    this.setChangeLogResourceName("META-INF/liquibase/changelog.xml");
     final URLResourceAccessor accessor = new URLResourceAccessor(new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader()));
     this.setResourceAccessor(new CompositeResourceAccessor(accessor, new FileSystemResourceAccessor(System.getProperty("user.dir"))));
     if (contexts != null && contexts.length > 0) {
@@ -257,7 +257,7 @@ public class LiquiunitRule extends ExternalResource {
    *
    * <p>At {@linkplain #LiquiunitRule(DataSource, String[])
    * construction time}, this property is set to "{@code
-   * changelog.xml}".</p>
+   * META-INF/liquibase/changelog.xml}".</p>
    *
    * @return the {@linkplain ClassLoader#getResource(String) classpath
    * resource name} of the <a
