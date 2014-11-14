@@ -30,17 +30,24 @@ package com.edugility.liquiunit;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.sql.DataSource;
 
 import com.edugility.liquibase.URLResourceAccessor;
 
+import liquibase.Contexts;
+import liquibase.LabelExpression;
 import liquibase.Liquibase;
 
 import liquibase.changelog.ChangeLogHistoryService;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
+import liquibase.changelog.ChangeSet;
+import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.StandardChangeLogHistoryService;
 
 import liquibase.database.Database;
@@ -105,19 +112,19 @@ public class LiquiunitRule extends ExternalResource {
   private final DataSource dataSource;
 
   /**
-   * The classpath resource name of the Liquibase <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * The classpath resource names of the Liquibase <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * to use.
    *
    * <p>This field may be {@code null}.</p>
    *
    * @see #changeLogResourceExists()
    *
-   * @see #getChangeLogResourceName()
+   * @see #getChangeLogResourceNames()
    *
-   * @see #setChangeLogResourceName(String)
+   * @see #setChangeLogResourceNames(Iterable)
    */
-  private String changeLogResourceName;
+  private Iterable<? extends String> changeLogResourceNames;
 
   /**
    * The {@link Liquibase} instance created by the {@link
@@ -181,10 +188,11 @@ public class LiquiunitRule extends ExternalResource {
   /**
    * Creates a new {@link LiquiunitRule}.
    *
-   * <p>The new {@link LiquiunitRule} will have a {@linkplain
-   * #getChangeLogResourceName changelog resource name} of "{@code
-   * META-INF/liquibase/changelog.xml}", and a {@link #getResourceAccessor()
-   * ResourceAccessor} {@linkplain
+   * <p>The new {@link LiquiunitRule} will have {@linkplain
+   * #getChangeLogResourceNames() changelog resource names} of "{@code
+   * META-INF/liquibase/changelog.xml}" and "{@code
+   * META-INF/liquibase/test-changelog.xml}", and a {@link
+   * #getResourceAccessor() ResourceAccessor} {@linkplain
    * #setResourceAccessor(ResourceAccessor) initialized} with the
    * following code:</p>
    *
@@ -211,7 +219,7 @@ public class LiquiunitRule extends ExternalResource {
    *
    * @see #setResourceAccessor(ResourceAccessor)
    *
-   * @see #setChangeLogResourceName(String)
+   * @see #setChangeLogResourceNames(Iterable)
    */
   public LiquiunitRule(final DataSource dataSource, final String... contexts) {
     super();
@@ -230,7 +238,10 @@ public class LiquiunitRule extends ExternalResource {
     }
     this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + (contexts == null ? "null" : Arrays.asList(contexts)));
     this.dataSource = dataSource;
-    this.setChangeLogResourceName("META-INF/liquibase/changelog.xml");
+    final List<String> changeLogResourceNames = new ArrayList<String>();
+    changeLogResourceNames.add("META-INF/liquibase/changelog.xml");
+    changeLogResourceNames.add("META-INF/liquibase/test-changelog.xml");
+    this.setChangeLogResourceNames(changeLogResourceNames);
     final URLResourceAccessor accessor = new URLResourceAccessor(new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader()));
     this.setResourceAccessor(new CompositeResourceAccessor(accessor, new FileSystemResourceAccessor(System.getProperty("user.dir"))));
     if (contexts != null && contexts.length > 0) {
@@ -247,59 +258,58 @@ public class LiquiunitRule extends ExternalResource {
 
   /**
    * Returns the {@linkplain ClassLoader#getResource(String) classpath
-   * resource name} of the <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * resource names} of the <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * that the associated {@linkplain #createLiquibase(Database)
-   * <code>Liquibase</code> instance} should use during its
-   * {@linkplain Liquibase#update(String) update operation}.
+   * <code>Liquibase</code> instance} should use during {@linkplain
+   * Liquibase#update(String) update operations}.
    *
    * <p>This method may return {@code null}.</p>
    *
    * <p>At {@linkplain #LiquiunitRule(DataSource, String[])
    * construction time}, this property is set to "{@code
-   * META-INF/liquibase/changelog.xml}".</p>
+   * META-INF/liquibase/changelog.xml}" and "{@code
+   * META-INF/liquibase/test-changelog.xml}".</p>
    *
    * @return the {@linkplain ClassLoader#getResource(String) classpath
-   * resource name} of the <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * resource names} of the <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * that the associated {@linkplain #createLiquibase(Database)
-   * <code>Liquibase</code> instance} should use during its
-   * {@linkplain Liquibase#update(String) update operation}, or {@code
-   * null}
+   * <code>Liquibase</code> instance} should use during {@linkplain
+   * Liquibase#update(String) update operations}, or {@code null}
    *
-   * @see #setChangeLogResourceName(String)
+   * @see #setChangeLogResourceNames(Iterable)
    *
    * @see #LiquiunitRule(DataSource, String[])
    */
-  public String getChangeLogResourceName() {
-    this.logger.debug("Entering getChangeLogResourceName()");
-    this.logger.debug("Exiting getChangeLogResourceName(); returning: " + this.changeLogResourceName);
-    return this.changeLogResourceName;
+  public Iterable<? extends String> getChangeLogResourceNames() {
+    this.logger.debug("Entering getChangeLogResourceNames()");
+    this.logger.debug("Exiting getChangeLogResourceNames(); returning: " + this.changeLogResourceNames);
+    return this.changeLogResourceNames;
 
   }
 
   /**
    * Sets the {@linkplain ClassLoader#getResource(String) classpath
-   * resource name} of the <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * resource names} of the <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * that the associated {@linkplain #createLiquibase(Database)
-   * <code>Liquibase</code> instance} should use during its
-   * {@linkplain Liquibase#update(String) update operation}.
+   * <code>Liquibase</code> instance} should use during {@linkplain
+   * Liquibase#update(String) update operations}.
    *
-   * @param name the {@linkplain ClassLoader#getResource(String)
-   * classpath resource name} of the <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * @param names the {@linkplain ClassLoader#getResource(String)
+   * classpath resource names} of the <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * that the associated {@linkplain #createLiquibase(Database)
-   * <code>Liquibase</code> instance} should use during its
-   * {@linkplain Liquibase#update(String) update operation}; may be
-   * {@code null}
+   * <code>Liquibase</code> instance} should use during {@linkplain
+   * Liquibase#update(String) update operations}; may be {@code null}
    *
-   * @see #getChangeLogResourceName()
+   * @see #getChangeLogResourceNames()
    */
-  public void setChangeLogResourceName(final String name) {
-    this.logger.debug("Entering setChangeLogResourceName(String); parameters: name = " + name);
-    this.changeLogResourceName = name;
-    this.logger.debug("Exiting setChangeLogResourceName(String)");
+  public void setChangeLogResourceNames(final Iterable<? extends String> names) {
+    this.logger.debug("Entering setChangeLogResourceName(Iterable); parameters: names = " + names);
+    this.changeLogResourceNames = names;
+    this.logger.debug("Exiting setChangeLogResourceName(Iterable)");
   }
 
   /**
@@ -402,7 +412,7 @@ public class LiquiunitRule extends ExternalResource {
    * {@linkplain #createLiquibase(Database) create a
    * <code>Liquibase</code> instance} and, using it, {@linkplain
    * Liquibase#update(String) update} the backing database using the
-   * {@linkplain #getChangeLogResourceName() affiliated changelog}.
+   * {@linkplain #getChangeLogResourceNames() affiliated changelogs}.
    *
    * @exception LiquibaseException if there was a Liquibase-related
    * error
@@ -458,12 +468,30 @@ public class LiquiunitRule extends ExternalResource {
     
   /**
    * Tries to {@linkplain ClassLoader#getResource(String) load} the
-   * {@linkplain #getChangeLogResourceName() classpath resource
-   * identifying a Liquibase changelog}, and, if successful, creates a
-   * new {@link Liquibase} instance initialized to read from it, and
+   * {@linkplain #getChangeLogResourceNames() classpath resources
+   * identifying Liquibase changelogs}, and, if successful, creates a
+   * new {@link Liquibase} instance initialized to read from them, and
    * returns it.
    *
    * <p>This method may return {@code null}.</p>
+   *
+   * <h2>Implementation Notes</h2>
+   *
+   * <p>When a {@link Liquibase} instance is asked to {@linkplain
+   * Liquibase#update(Contexts, LabelExpression) perform an update
+   * operation}, it operates on a single {@link DatabaseChangeLog}.
+   * But this class can specify {@linkplain
+   * #getChangeLogResourceNames() several changelogs to read}.
+   * Consequently, the {@link Liquibase} instance constructed by this
+   * method uses an internally built composite {@link
+   * DatabaseChangeLog} that logically aggregates all appropriate
+   * changelogs by virtue of its {@link
+   * DatabaseChangeLog#include(String, boolean, ResourceAccessor)}
+   * method.  From the point of view of a {@link Liquibase} instance
+   * constructed by this method, therefore, there is only one {@link
+   * DatabaseChangeLog} in existence that has been formed by the
+   * inclusion of {@linkplain #getChangeLogResourceNames() all
+   * relevant existing changelogs} into one.</p>
    *
    * @param database the {@link Database} to operate on; must not be
    * {@code null}
@@ -478,37 +506,81 @@ public class LiquiunitRule extends ExternalResource {
    * @see #changeLogResourceExists()
    *
    * @see #getResourceAccessor()
+   *
+   * @see Liquibase
+   *
+   * @see Liquibase#Liquibase(DatabaseChangeLog, ResourceAccessor, Database)
+   *
+   * @see DatabaseChangeLog
+   *
+   * @see DatabaseChangeLog#include(String, boolean, ResourceAccessor)
    */
   protected Liquibase createLiquibase(final Database database) throws LiquibaseException {
     this.logger.debug("Entering createLiquibase(Database); parameters: database = " + database);
-    final Liquibase liquibase;
-    if (!changeLogResourceExists()) {
-      liquibase = null;
-    } else {
-      liquibase = new Liquibase(changeLogResourceName, this.getResourceAccessor(), database);
+    Liquibase liquibase = null;
+    if (changeLogResourceExists()) {
+      final Iterable<? extends String> changeLogResourceNames = this.getChangeLogResourceNames();
+      if (changeLogResourceNames != null) {
+        final ResourceAccessor resourceAccessor = this.getResourceAccessor();        
+        AugmentableDatabaseChangeLog changeLog = null;
+        for (final String changeLogResourceName : changeLogResourceNames) {
+          if (changeLogResourceName != null && this.changeLogResourceExists(changeLogResourceName)) {
+            if (changeLog == null) {
+              assert liquibase == null;
+              changeLog = this.createAugmentableDatabaseChangeLog(database, changeLogResourceName);
+              liquibase = new Liquibase(changeLog, resourceAccessor, database);
+              changeLog.setChangeLogParameters(liquibase.getChangeLogParameters());
+            } else {
+              assert liquibase != null;
+              changeLog.include(changeLogResourceName, resourceAccessor);
+            }
+          }
+        }
+      }
     }
     this.logger.debug("Exiting createLiquibase(Database); returning: " + liquibase);
     return liquibase;
   }
 
   /**
-   * Returns {@code true} if the <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * Returns {@code true} if at least one of the <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * identified by the return value of the {@link
-   * #getChangeLogResourceName()} method actually exists.
+   * #getChangeLogResourceNames()} method actually exists.
    *
-   * @return {@code true} if the <a
-   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelog</a>
+   * @return {@code true} if at least one of the <a
+   * href="http://www.liquibase.org/documentation/databasechangelog.html">changelogs</a>
    * identified by the return value of the {@link
-   * #getChangeLogResourceName()} method actually exists; {@code
+   * #getChangeLogResourceNames()} method actually exists; {@code
    * false} otherwise
    *
-   * @see #getChangeLogResourceName()
+   * @see #getChangeLogResourceNames()
    */
   protected boolean changeLogResourceExists() {
     this.logger.debug("Entering changeLogResourceExists()");
     final boolean returnValue;
-    final String changeLogResourceName = this.getChangeLogResourceName();
+    final Iterable<? extends String> changeLogResourceNames = this.getChangeLogResourceNames();
+    if (changeLogResourceNames == null) {
+      returnValue = false;
+    } else {
+      boolean foundOne = false;
+      for (final String changeLogResourceName : changeLogResourceNames) {
+        if (changeLogResourceName != null) {
+          foundOne = this.changeLogResourceExists(changeLogResourceName);
+          if (foundOne) {
+            break;
+          }
+        }
+      }
+      returnValue = foundOne;
+    }
+    this.logger.debug("Exiting changeLogResourceExists(); returning: " + returnValue);
+    return returnValue;
+  }
+
+  protected boolean changeLogResourceExists(final String changeLogResourceName) {
+    this.logger.debug("Entering changeLogResourceExists(String)");
+    final boolean returnValue;
     if (changeLogResourceName == null) {
       returnValue = false;
     } else {
@@ -521,10 +593,12 @@ public class LiquiunitRule extends ExternalResource {
       }
       returnValue = cl != null && cl.getResource(changeLogResourceName) != null;
     }
-    this.logger.debug("Exiting changeLogResourceExists(); returning: " + returnValue);
+    this.logger.debug("Exiting changeLogResourceExists(String); returning: " + returnValue);
     return returnValue;
   }
 
+
+  
   /**
    * Returns the {@link ResourceAccessor} associated with this {@link
    * LiquiunitRule} that will be used by the {@link
@@ -611,6 +685,36 @@ public class LiquiunitRule extends ExternalResource {
     return returnValue;
   }
 
+  /**
+   * Creates an {@link AugmentableDatabaseChangeLog} that can
+   * {@linkplain AugmentableDatabaseChangeLog#include(String,
+   * ResourceAccessor)} include other changelogs.
+   *
+   * <p>This method is a hack that exists only because the {@link
+   * DatabaseChangeLog#include(String, boolean, ResourceAccessor}
+   * method is not {@code public}.</p>
+   *
+   * @param database the {@link Database} to use; may be {@code null}
+   *
+   * @param changeLogResourceName the name of the changelog to parse;
+   * may be {@code null}
+   *
+   * @return a new, non-{@code null} {@link
+   * AugmentableDatabaseChangeLog}
+   *
+   * @exception LiquibaseException if an error occurs
+   *
+   * @see DatabaseChangeLog
+   *
+   * @see DatabaseChangeLog#include(String, boolean, ResourceAccessor)
+   */
+  private final AugmentableDatabaseChangeLog createAugmentableDatabaseChangeLog(final Database database, final String changeLogResourceName) throws LiquibaseException {
+    final Liquibase throwaway = new Liquibase(changeLogResourceName, this.getResourceAccessor(), database);
+    final AugmentableDatabaseChangeLog returnValue = new AugmentableDatabaseChangeLog();
+    copyState(throwaway.getDatabaseChangeLog(), returnValue);
+    return returnValue;
+  }
+
 
   /*
    * Static methods.
@@ -618,16 +722,20 @@ public class LiquiunitRule extends ExternalResource {
 
 
   public static final TestRule newInstance() {
-    return newInstance(null, new H2Rule());
+    return newInstance((Iterable<? extends String>)null, new H2Rule());
   }
 
   public static final TestRule newInstance(final String changeLogResourceName, DataSource dataSource, final String... contexts) {
+    return newInstance(changeLogResourceName == null ? (Iterable<? extends String>)null : Arrays.asList(changeLogResourceName), dataSource, contexts);
+  }
+  
+  public static final TestRule newInstance(final Iterable<? extends String> changeLogResourceNames, DataSource dataSource, final String... contexts) {
     if (dataSource == null) {
       dataSource = new H2Rule();
     }
     final LiquiunitRule liquibase = new LiquiunitRule(dataSource, contexts);
-    if (changeLogResourceName != null) {
-      liquibase.setChangeLogResourceName(changeLogResourceName);
+    if (changeLogResourceNames != null) {
+      liquibase.setChangeLogResourceNames(changeLogResourceNames);
     }    
     if (dataSource instanceof TestRule) {
       return RuleChain.outerRule((TestRule)dataSource).around(liquibase);
@@ -636,4 +744,63 @@ public class LiquiunitRule extends ExternalResource {
     }
   }
 
+  /**
+   * A hackish method that would not be needed except that by default
+   * the {@link DatabaseChangeLog#include(String, boolean,
+   * ResourceAccessor)} method is not {@code public}.
+   *
+   * <p>This method copies the state from the {@code oldLog} parameter
+   * into the {@code newLog} parameter.</p>
+   *
+   * <p>The properties that are copied are those that are present in
+   * version 3.3.0 of the {@link DatabaseChangeLog} class.  Updates to
+   * <a href="http://www.liquibase.org/">Liquibase</a> may alter the
+   * state that needs to be copied; in such a case this method will
+   * need to be changed.</p>
+   *
+   * @param oldLog the {@link DatabaseChangeLog} from which state
+   * should be copied; may be {@code null} in which case no action
+   * will be taken
+   *
+   * @param newLog the {@link DatabaseChangeLog} to which state should
+   * be copied; may be {@code null} in which case no action will be
+   * taken
+   *
+   * @see <a
+   * href="https://liquibase.jira.com/browse/CORE-2125"><code>CORE-2125</code></a>
+   */
+  private static final void copyState(final DatabaseChangeLog oldLog, final DatabaseChangeLog newLog) {
+    if (oldLog != null && newLog != null) {
+      newLog.setChangeLogParameters(oldLog.getChangeLogParameters());
+      newLog.setIgnoreClasspathPrefix(oldLog.ignoreClasspathPrefix());
+      newLog.setLogicalFilePath(oldLog.getLogicalFilePath());
+      newLog.setObjectQuotingStrategy(oldLog.getObjectQuotingStrategy());
+      newLog.setPhysicalFilePath(oldLog.getPhysicalFilePath());
+      newLog.setPreconditions(oldLog.getPreconditions());
+      newLog.setRuntimeEnvironment(oldLog.getRuntimeEnvironment());
+      final Collection<ChangeSet> changeSets = oldLog.getChangeSets();
+      assert changeSets != null;
+      for (final ChangeSet changeSet : changeSets) {
+        newLog.addChangeSet(changeSet);
+      }
+    }
+  }
+
+  /*
+   * Inner and nested classes.
+   */
+
+
+  private static final class AugmentableDatabaseChangeLog extends DatabaseChangeLog {
+
+    private AugmentableDatabaseChangeLog() {
+      super();
+    }
+
+    public final boolean include(final String filename, final ResourceAccessor resourceAccessor) throws LiquibaseException {
+      return this.include(filename, false, resourceAccessor);
+    }
+    
+  }
+  
 }
