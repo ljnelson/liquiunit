@@ -191,7 +191,7 @@
 <span class="sourceLineNo">183</span>   *<a name="line.183"></a>
 <span class="sourceLineNo">184</span>   * &lt;p&gt;The new {@link LiquiunitRule} will have a {@linkplain<a name="line.184"></a>
 <span class="sourceLineNo">185</span>   * #getChangeLogResourceName changelog resource name} of "{@code<a name="line.185"></a>
-<span class="sourceLineNo">186</span>   * changelog.xml}", and a {@link #getResourceAccessor()<a name="line.186"></a>
+<span class="sourceLineNo">186</span>   * META-INF/liquibase/changelog.xml}", and a {@link #getResourceAccessor()<a name="line.186"></a>
 <span class="sourceLineNo">187</span>   * ResourceAccessor} {@linkplain<a name="line.187"></a>
 <span class="sourceLineNo">188</span>   * #setResourceAccessor(ResourceAccessor) initialized} with the<a name="line.188"></a>
 <span class="sourceLineNo">189</span>   * following code:&lt;/p&gt;<a name="line.189"></a>
@@ -238,7 +238,7 @@
 <span class="sourceLineNo">230</span>    }<a name="line.230"></a>
 <span class="sourceLineNo">231</span>    this.logger.debug("Entering LiquiunitRule(DataSource, String[]); parameters: dataSource = " + dataSource + "; contexts = " + (contexts == null ? "null" : Arrays.asList(contexts)));<a name="line.231"></a>
 <span class="sourceLineNo">232</span>    this.dataSource = dataSource;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    this.setChangeLogResourceName("changelog.xml");<a name="line.233"></a>
+<span class="sourceLineNo">233</span>    this.setChangeLogResourceName("META-INF/liquibase/changelog.xml");<a name="line.233"></a>
 <span class="sourceLineNo">234</span>    final URLResourceAccessor accessor = new URLResourceAccessor(new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader()));<a name="line.234"></a>
 <span class="sourceLineNo">235</span>    this.setResourceAccessor(new CompositeResourceAccessor(accessor, new FileSystemResourceAccessor(System.getProperty("user.dir"))));<a name="line.235"></a>
 <span class="sourceLineNo">236</span>    if (contexts != null &amp;&amp; contexts.length &gt; 0) {<a name="line.236"></a>
@@ -265,7 +265,7 @@
 <span class="sourceLineNo">257</span>   *<a name="line.257"></a>
 <span class="sourceLineNo">258</span>   * &lt;p&gt;At {@linkplain #LiquiunitRule(DataSource, String[])<a name="line.258"></a>
 <span class="sourceLineNo">259</span>   * construction time}, this property is set to "{@code<a name="line.259"></a>
-<span class="sourceLineNo">260</span>   * changelog.xml}".&lt;/p&gt;<a name="line.260"></a>
+<span class="sourceLineNo">260</span>   * META-INF/liquibase/changelog.xml}".&lt;/p&gt;<a name="line.260"></a>
 <span class="sourceLineNo">261</span>   *<a name="line.261"></a>
 <span class="sourceLineNo">262</span>   * @return the {@linkplain ClassLoader#getResource(String) classpath<a name="line.262"></a>
 <span class="sourceLineNo">263</span>   * resource name} of the &lt;a<a name="line.263"></a>
