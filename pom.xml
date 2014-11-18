@@ -8,7 +8,7 @@
 
   <groupId>com.edugility</groupId>
   <artifactId>liquiunit</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5-SNAPSHOT</version>
 
   <parent>
     <groupId>com.edugility</groupId>
@@ -25,7 +25,7 @@
     <connection>scm:git:git@github.com:ljnelson/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:ljnelson/${project.artifactId}.git</developerConnection>
     <url>https://github.com/ljnelson/${project.artifactId}/</url>
-    <tag>liquiunit-1.0.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
