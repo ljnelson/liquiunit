@@ -197,8 +197,10 @@ public class LiquiunitRule extends ExternalResource {
    * following code:</p>
    *
    * <!-- Formatting here is important for proper Javadoc output -->
-   * <blockquote><pre>new CompositeResourceAccessor(new URLResourceAccessor(Thread.currentThread().getContextClassLoader()), 
-   *                              new FileSystemResourceAccessor(System.getProperty("user.dir")))</pre></blockquote>
+   * <blockquote><pre>final ResourceAccessor classLoaderAccessor = new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader());
+   *final ResourceAccessor urlAccessor = new URLResourceAccessor(classLoaderAccessor);
+   *final ResourceAccessor fileAccessor = new FileSystemResourceAccessor(System.getProperty("user.dir"));
+   *new CompositeResourceAccessor(urlAccessor, classLoaderAccessor, fileAccessor);</pre></blockquote>
    *
    * <p>Consider passing an {@link H2Rule} as the value for the {@code
    * dataSource} parameter for thread-safe parallel in-memory database
@@ -242,8 +244,10 @@ public class LiquiunitRule extends ExternalResource {
     changeLogResourceNames.add("META-INF/liquibase/changelog.xml");
     changeLogResourceNames.add("META-INF/liquibase/test-changelog.xml");
     this.setChangeLogResourceNames(changeLogResourceNames);
-    final URLResourceAccessor accessor = new URLResourceAccessor(new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader()));
-    this.setResourceAccessor(new CompositeResourceAccessor(accessor, new FileSystemResourceAccessor(System.getProperty("user.dir"))));
+    final ResourceAccessor classLoaderAccessor = new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader());
+    final ResourceAccessor urlAccessor = new URLResourceAccessor(classLoaderAccessor);
+    final ResourceAccessor fileAccessor = new FileSystemResourceAccessor(System.getProperty("user.dir"));
+    this.setResourceAccessor(new CompositeResourceAccessor(urlAccessor, classLoaderAccessor, fileAccessor));
     if (contexts != null && contexts.length > 0) {
       this.setContexts(Arrays.asList(contexts));
     }
