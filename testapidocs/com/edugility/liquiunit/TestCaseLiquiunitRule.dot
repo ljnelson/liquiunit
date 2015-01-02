@@ -10,7 +10,7 @@ digraph G {
 	nodesep=0.25;
 	ranksep=0.5;
 	// com.edugility.liquiunit.TestCaseLiquiunitRule
-	c44 [label=<<table title="com.edugility.liquiunit.TestCaseLiquiunitRule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" bgcolor="lemonChiffon" href="./TestCaseLiquiunitRule.html">
+	c36 [label=<<table title="com.edugility.liquiunit.TestCaseLiquiunitRule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" bgcolor="lemonChiffon" href="./TestCaseLiquiunitRule.html">
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="center" balign="center"> TestCaseLiquiunitRule </td></tr>
 		</table></td></tr>
@@ -24,9 +24,9 @@ digraph G {
 		</table></td></tr>
 		</table>>, URL="./TestCaseLiquiunitRule.html", fontname="Helvetica", fontcolor="black", fontsize=10.0];
 	// com.edugility.liquiunit.TestCaseLiquiunitRule NAVASSOC org.junit.rules.TestRule
-	c44:p -> c49:p [taillabel="", label="", headlabel="", fontname="Helvetica", fontcolor="black", fontsize=10.0, color="black", arrowhead=open];
+	c36:p -> c41:p [taillabel="", label="", headlabel="", fontname="Helvetica", fontcolor="black", fontsize=10.0, color="black", arrowhead=open];
 	// org.junit.rules.TestRule
-	c49 [label=<<table title="org.junit.rules.TestRule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" href="http://junit.org/apidocs/org/junit/rules/TestRule.html">
+	c41 [label=<<table title="org.junit.rules.TestRule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" href="http://junit.org/apidocs/org/junit/rules/TestRule.html">
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="center" balign="center"> &#171;interface&#187; </td></tr>
 <tr><td align="center" balign="center"> org.junit.rules.TestRule </td></tr>
