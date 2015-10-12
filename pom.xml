@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <prerequisites>
-    <maven>3.0.5</maven>
+    <maven>3.3.3</maven>
   </prerequisites>
 
   <groupId>com.edugility</groupId>
@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.edugility</groupId>
     <artifactId>edugility-oss-pluginmanagement-pom</artifactId>
-    <version>5</version>
+    <version>14</version>
   </parent>
 
   <name>Liquiunit</name>
@@ -40,14 +40,14 @@
     <dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>org.eclipse.persistence.jpa</artifactId>
-      <version>2.5.2</version>
+      <version>2.6.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
-      <version>2.5.0</version>
+      <version>2.5.1</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -60,13 +60,13 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.9</version>
+      <version>1.7.12</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>1.7.9</version>
+      <version>1.7.12</version>
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
@@ -74,7 +74,7 @@
     <dependency>
       <groupId>com.edugility</groupId>
       <artifactId>liquibase-extensions</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4</version>
     </dependency>
 
     <dependency>
@@ -94,14 +94,14 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.3.176</version>
+      <version>1.4.189</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>3.3.1</version>
+      <version>3.4.1</version>
       <scope>compile</scope>
     </dependency>
 
@@ -145,7 +145,6 @@
       <plugin>
         <groupId>com.github.github</groupId>
         <artifactId>site-maven-plugin</artifactId>
-        <version>0.10</version>
       </plugin>
 
     </plugins>
@@ -173,7 +172,7 @@
     <maven.compiler.target>1.6</maven.compiler.target>
 
     <!-- maven-javadoc-plugin properties -->
-    <links>http://www.liquibase.org/javadoc/,http://junit.org/apidocs/,http://www.dbunit.org/apidocs/,http://docs.oracle.com/javaee/6/api/</links>
+    <links>http://www.liquibase.org/javadoc/,http://junit.org/apidocs/,http://docs.oracle.com/javaee/6/api/</links>
     <umlGraphVersion>5.6.6</umlGraphVersion>
 
     <!-- maven-release-plugin properties -->
@@ -249,7 +248,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.2</version>
         <!--
         <configuration>
           <excludeFilterFile>${basedir}/src/findbugs/exclude.xml</excludeFilterFile>

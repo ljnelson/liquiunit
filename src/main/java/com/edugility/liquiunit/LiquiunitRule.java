@@ -523,7 +523,7 @@ public class LiquiunitRule extends ExternalResource {
     if (changeLogResourceExists()) {
       final Iterable<? extends String> changeLogResourceNames = this.getChangeLogResourceNames();
       if (changeLogResourceNames != null) {
-        final ResourceAccessor resourceAccessor = this.getResourceAccessor();        
+        final ResourceAccessor resourceAccessor = this.getResourceAccessor();
         AugmentableDatabaseChangeLog changeLog = null;
         for (final String changeLogResourceName : changeLogResourceNames) {
           if (changeLogResourceName != null && this.changeLogResourceExists(changeLogResourceName)) {
