@@ -531,7 +531,7 @@
 <span class="sourceLineNo">523</span>    if (changeLogResourceExists()) {<a name="line.523"></a>
 <span class="sourceLineNo">524</span>      final Iterable&lt;? extends String&gt; changeLogResourceNames = this.getChangeLogResourceNames();<a name="line.524"></a>
 <span class="sourceLineNo">525</span>      if (changeLogResourceNames != null) {<a name="line.525"></a>
-<span class="sourceLineNo">526</span>        final ResourceAccessor resourceAccessor = this.getResourceAccessor();        <a name="line.526"></a>
+<span class="sourceLineNo">526</span>        final ResourceAccessor resourceAccessor = this.getResourceAccessor();<a name="line.526"></a>
 <span class="sourceLineNo">527</span>        AugmentableDatabaseChangeLog changeLog = null;<a name="line.527"></a>
 <span class="sourceLineNo">528</span>        for (final String changeLogResourceName : changeLogResourceNames) {<a name="line.528"></a>
 <span class="sourceLineNo">529</span>          if (changeLogResourceName != null &amp;&amp; this.changeLogResourceExists(changeLogResourceName)) {<a name="line.529"></a>

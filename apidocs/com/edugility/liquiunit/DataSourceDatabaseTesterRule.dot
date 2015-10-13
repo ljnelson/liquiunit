@@ -90,7 +90,7 @@ digraph G {
 		</table></td></tr>
 		</table>>, URL="http://junit.org/apidocs/org/junit/runner/Description.html", fontname="Helvetica", fontcolor="black", fontsize=10.0];
 	// org.dbunit.dataset.IDataSet
-	c44 [label=<<table title="org.dbunit.dataset.IDataSet" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" href="http://www.dbunit.org/apidocs/org/dbunit/dataset/IDataSet.html">
+	c44 [label=<<table title="org.dbunit.dataset.IDataSet" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p">
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="center" balign="center"> &#171;interface&#187; </td></tr>
 <tr><td align="center" balign="center"> org.dbunit.dataset.IDataSet </td></tr>
@@ -107,9 +107,9 @@ digraph G {
 <tr><td align="left" balign="left"><font face="Helvetica-Oblique" point-size="10.0"> + reverseIterator() : org.dbunit.dataset.ITableIterator </font></td></tr>
 <tr><td align="left" balign="left"><font face="Helvetica-Oblique" point-size="10.0"> + isCaseSensitiveTableNames() : boolean </font></td></tr>
 		</table></td></tr>
-		</table>>, URL="http://www.dbunit.org/apidocs/org/dbunit/dataset/IDataSet.html", fontname="Helvetica", fontcolor="black", fontsize=10.0];
+		</table>>, URL="null", fontname="Helvetica", fontcolor="black", fontsize=10.0];
 	// org.dbunit.DataSourceDatabaseTester
-	c39 [label=<<table title="org.dbunit.DataSourceDatabaseTester" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" href="http://www.dbunit.org/apidocs/org/dbunit/DataSourceDatabaseTester.html">
+	c39 [label=<<table title="org.dbunit.DataSourceDatabaseTester" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p">
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="center" balign="center"> org.dbunit.DataSourceDatabaseTester </td></tr>
 		</table></td></tr>
@@ -121,6 +121,6 @@ digraph G {
 <tr><td align="left" balign="left"> + DataSourceDatabaseTester(arg0 : javax.sql.DataSource, arg1 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + getConnection() : org.dbunit.database.IDatabaseConnection </td></tr>
 		</table></td></tr>
-		</table>>, URL="http://www.dbunit.org/apidocs/org/dbunit/DataSourceDatabaseTester.html", fontname="Helvetica", fontcolor="black", fontsize=10.0];
+		</table>>, URL="null", fontname="Helvetica", fontcolor="black", fontsize=10.0];
 }
 

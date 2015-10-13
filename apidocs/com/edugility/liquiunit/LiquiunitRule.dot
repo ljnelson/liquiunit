@@ -122,31 +122,56 @@ digraph G {
 <tr><td align="left" balign="left"> + update(arg0 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : liquibase.Contexts) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : boolean) </td></tr>
 <tr><td align="left" balign="left"> + getDatabaseChangeLog() : liquibase.changelog.DatabaseChangeLog </td></tr>
 <tr><td align="left" balign="left"> # createUpdateVisitor() : liquibase.changelog.visitor.UpdateVisitor </td></tr>
 <tr><td align="left" balign="left"> # getStandardChangelogIterator(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : liquibase.changelog.DatabaseChangeLog) : liquibase.changelog.ChangeLogIterator </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : liquibase.Contexts, arg1 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : java.io.Writer, arg3 : boolean) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : int, arg1 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : int, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : java.lang.String) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : liquibase.Contexts) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : int, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + update(arg0 : int, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + update(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : liquibase.Contexts, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String, arg2 : java.lang.String, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression, arg4 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String, arg2 : java.lang.String) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : int, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> # removeRunStatus(arg0 : liquibase.changelog.ChangeLogIterator, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> # executeRollbackScript(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : java.lang.String, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression, arg4 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : liquibase.Contexts) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : java.lang.String) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : liquibase.Contexts) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.lang.String, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : java.lang.String, arg2 : java.lang.String, arg3 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression, arg4 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : java.lang.String, arg2 : java.lang.String) </td></tr>
+<tr><td align="left" balign="left"> + rollback(arg0 : java.util.Date, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + changeLogSync(arg0 : java.lang.String, arg1 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + changeLogSync(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + changeLogSync(arg0 : java.lang.String) </td></tr>
@@ -157,14 +182,24 @@ digraph G {
 <tr><td align="left" balign="left"> + markNextChangeSetRan(arg0 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + markNextChangeSetRan(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.String, arg1 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.String, arg1 : java.io.Writer, arg2 : boolean) </td></tr>
 <tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.Integer, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.Integer, arg1 : java.lang.String, arg2 : java.io.Writer, arg3 : boolean) </td></tr>
 <tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.Integer, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.Integer, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer, arg4 : boolean) </td></tr>
+<tr><td align="left" balign="left"> + futureRollbackSQL(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> # futureRollbackSQL(arg0 : java.lang.Integer, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression, arg4 : java.io.Writer) </td></tr>
+<tr><td align="left" balign="left"> # futureRollbackSQL(arg0 : java.lang.Integer, arg1 : java.lang.String, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression, arg4 : java.io.Writer, arg5 : boolean) </td></tr>
 <tr><td align="left" balign="left"> # resetServices() </td></tr>
 <tr><td align="left" balign="left"> + dropAll() </td></tr>
 <tr><td align="left" balign="left"> + dropAll(arg0 : liquibase.CatalogAndSchema[]) </td></tr>
 <tr><td align="left" balign="left"> + tag(arg0 : java.lang.String) </td></tr>
+<tr><td align="left" balign="left"> + tagExists(arg0 : java.lang.String) : boolean </td></tr>
 <tr><td align="left" balign="left"> + updateTestingRollback(arg0 : java.lang.String) </td></tr>
 <tr><td align="left" balign="left"> + updateTestingRollback(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression) </td></tr>
+<tr><td align="left" balign="left"> + updateTestingRollback(arg0 : java.lang.String, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + checkLiquibaseTables(arg0 : boolean, arg1 : liquibase.changelog.DatabaseChangeLog, arg2 : liquibase.Contexts, arg3 : liquibase.LabelExpression) </td></tr>
 <tr><td align="left" balign="left"> + isSafeToRunUpdate() : boolean </td></tr>
 <tr><td align="left" balign="left"> + listLocks() : liquibase.lockservice.DatabaseChangeLogLock[] </td></tr>
@@ -172,8 +207,10 @@ digraph G {
 <tr><td align="left" balign="left"> + forceReleaseLocks() </td></tr>
 <tr><td align="left" balign="left"> + listUnrunChangeSets(arg0 : liquibase.Contexts) : java.util.List&lt;liquibase.changelog.ChangeSet&gt; </td></tr>
 <tr><td align="left" balign="left"> + listUnrunChangeSets(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression) : java.util.List&lt;liquibase.changelog.ChangeSet&gt; </td></tr>
+<tr><td align="left" balign="left"> # listUnrunChangeSets(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : boolean) : java.util.List&lt;liquibase.changelog.ChangeSet&gt; </td></tr>
 <tr><td align="left" balign="left"> + getChangeSetStatuses(arg0 : liquibase.Contexts) : java.util.List&lt;liquibase.changelog.ChangeSetStatus&gt; </td></tr>
 <tr><td align="left" balign="left"> + getChangeSetStatuses(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression) : java.util.List&lt;liquibase.changelog.ChangeSetStatus&gt; </td></tr>
+<tr><td align="left" balign="left"> + getChangeSetStatuses(arg0 : liquibase.Contexts, arg1 : liquibase.LabelExpression, arg2 : boolean) : java.util.List&lt;liquibase.changelog.ChangeSetStatus&gt; </td></tr>
 <tr><td align="left" balign="left"> + reportStatus(arg0 : boolean, arg1 : java.lang.String, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + reportStatus(arg0 : boolean, arg1 : liquibase.Contexts, arg2 : java.io.Writer) </td></tr>
 <tr><td align="left" balign="left"> + reportStatus(arg0 : boolean, arg1 : liquibase.Contexts, arg2 : liquibase.LabelExpression, arg3 : java.io.Writer) </td></tr>

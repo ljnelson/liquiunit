@@ -1,12 +1,12 @@
 <map id="G" name="G">
 <area shape="rect" id="node1_0" href="./LiquiunitRule.html" title="com.edugility.liquiunit.LiquiunitRule" alt="" coords="784,193,1472,490"/>
 <area shape="rect" id="node1" href="./LiquiunitRule.html" title="&lt;TABLE&gt;" alt="" coords="773,187,1483,495"/>
-<area shape="rect" id="node5_1" href="http://www.liquibase.org/javadoc/liquibase/logging/Logger.html" title="liquibase.logging.Logger" alt="" coords="16,1118,427,1431"/>
-<area shape="rect" id="node5" href="http://www.liquibase.org/javadoc/liquibase/logging/Logger.html" title="&lt;TABLE&gt;" alt="" coords="5,1113,437,1437"/>
-<area shape="rect" id="node7_2" href="http://www.liquibase.org/javadoc/liquibase/Liquibase.html" title="liquibase.Liquibase" alt="" coords="473,550,1783,1999"/>
-<area shape="rect" id="node7" href="http://www.liquibase.org/javadoc/liquibase/Liquibase.html" title="&lt;TABLE&gt;" alt="" coords="462,545,1794,2005"/>
-<area shape="rect" id="node9_3" href="http://www.liquibase.org/javadoc/liquibase/resource/ResourceAccessor.html" title="liquibase.resource.ResourceAccessor" alt="" coords="1829,1214,2617,1335"/>
-<area shape="rect" id="node9" href="http://www.liquibase.org/javadoc/liquibase/resource/ResourceAccessor.html" title="&lt;TABLE&gt;" alt="" coords="1818,1209,2627,1341"/>
+<area shape="rect" id="node5_1" href="http://www.liquibase.org/javadoc/liquibase/logging/Logger.html" title="liquibase.logging.Logger" alt="" coords="16,1414,427,1727"/>
+<area shape="rect" id="node5" href="http://www.liquibase.org/javadoc/liquibase/logging/Logger.html" title="&lt;TABLE&gt;" alt="" coords="5,1409,437,1733"/>
+<area shape="rect" id="node7_2" href="http://www.liquibase.org/javadoc/liquibase/Liquibase.html" title="liquibase.Liquibase" alt="" coords="473,550,1783,2591"/>
+<area shape="rect" id="node7" href="http://www.liquibase.org/javadoc/liquibase/Liquibase.html" title="&lt;TABLE&gt;" alt="" coords="462,545,1794,2597"/>
+<area shape="rect" id="node9_3" href="http://www.liquibase.org/javadoc/liquibase/resource/ResourceAccessor.html" title="liquibase.resource.ResourceAccessor" alt="" coords="1829,1510,2617,1631"/>
+<area shape="rect" id="node9" href="http://www.liquibase.org/javadoc/liquibase/resource/ResourceAccessor.html" title="&lt;TABLE&gt;" alt="" coords="1818,1505,2627,1637"/>
 <area shape="rect" id="node2_4" href="http://junit.org/apidocs/org/junit/rules/ExternalResource.html" title="org.junit.rules.ExternalResource" alt="" coords="765,11,1491,133"/>
 <area shape="rect" id="node2" href="http://junit.org/apidocs/org/junit/rules/ExternalResource.html" title="&lt;TABLE&gt;" alt="" coords="754,6,1502,138"/>
 </map>

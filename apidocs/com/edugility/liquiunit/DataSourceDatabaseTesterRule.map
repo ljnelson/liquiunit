@@ -1,12 +1,10 @@
 <map id="G" name="G">
 <area shape="rect" id="node1_0" href="./DataSourceDatabaseTesterRule.html" title="com.edugility.liquiunit.DataSourceDatabaseTesterRule" alt="" coords="649,193,1351,426"/>
 <area shape="rect" id="node1" href="./DataSourceDatabaseTesterRule.html" title="&lt;TABLE&gt;" alt="" coords="638,187,1362,431"/>
-<area shape="rect" id="node5_1" href="http://www.dbunit.org/apidocs/org/dbunit/DataSourceDatabaseTester.html" title="org.dbunit.DataSourceDatabaseTester" alt="" coords="16,654,520,759"/>
-<area shape="rect" id="node5" href="http://www.dbunit.org/apidocs/org/dbunit/DataSourceDatabaseTester.html" title="&lt;TABLE&gt;" alt="" coords="5,649,531,765"/>
-<area shape="rect" id="node7_2" href="http://junit.org/apidocs/org/junit/runner/Description.html" title="org.junit.runner.Description" alt="" coords="565,486,1435,927"/>
+<area shape="rect" id="node5" href="null" title="&lt;TABLE&gt;" alt="" coords="5,649,531,765"/>
+<area shape="rect" id="node7_1" href="http://junit.org/apidocs/org/junit/runner/Description.html" title="org.junit.runner.Description" alt="" coords="565,486,1435,927"/>
 <area shape="rect" id="node7" href="http://junit.org/apidocs/org/junit/runner/Description.html" title="&lt;TABLE&gt;" alt="" coords="555,481,1445,933"/>
-<area shape="rect" id="node9_3" href="http://www.dbunit.org/apidocs/org/dbunit/dataset/IDataSet.html" title="org.dbunit.dataset.IDataSet" alt="" coords="1481,614,1973,799"/>
-<area shape="rect" id="node9" href="http://www.dbunit.org/apidocs/org/dbunit/dataset/IDataSet.html" title="&lt;TABLE&gt;" alt="" coords="1470,609,1983,805"/>
-<area shape="rect" id="node2_4" href="http://junit.org/apidocs/org/junit/rules/ExternalResource.html" title="org.junit.rules.ExternalResource" alt="" coords="637,11,1363,133"/>
+<area shape="rect" id="node9" href="null" title="&lt;TABLE&gt;" alt="" coords="1470,609,1983,805"/>
+<area shape="rect" id="node2_2" href="http://junit.org/apidocs/org/junit/rules/ExternalResource.html" title="org.junit.rules.ExternalResource" alt="" coords="637,11,1363,133"/>
 <area shape="rect" id="node2" href="http://junit.org/apidocs/org/junit/rules/ExternalResource.html" title="&lt;TABLE&gt;" alt="" coords="626,6,1374,138"/>
 </map>

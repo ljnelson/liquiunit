@@ -10,7 +10,7 @@ digraph G {
 	nodesep=0.25;
 	ranksep=0.5;
 	// com.edugility.liquiunit.TestCaseJPARule
-	c31 [label=<<table title="com.edugility.liquiunit.TestCaseJPARule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" bgcolor="lemonChiffon" href="./TestCaseJPARule.html">
+	c39 [label=<<table title="com.edugility.liquiunit.TestCaseJPARule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" bgcolor="lemonChiffon" href="./TestCaseJPARule.html">
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="center" balign="center"> TestCaseJPARule </td></tr>
 		</table></td></tr>
@@ -24,9 +24,9 @@ digraph G {
 		</table></td></tr>
 		</table>>, URL="./TestCaseJPARule.html", fontname="Helvetica", fontcolor="black", fontsize=10.0];
 	// com.edugility.liquiunit.TestCaseJPARule NAVASSOC org.junit.rules.TestRule
-	c31:p -> c35:p [taillabel="", label="", headlabel="", fontname="Helvetica", fontcolor="black", fontsize=10.0, color="black", arrowhead=open];
+	c39:p -> c43:p [taillabel="", label="", headlabel="", fontname="Helvetica", fontcolor="black", fontsize=10.0, color="black", arrowhead=open];
 	// org.junit.rules.TestRule
-	c35 [label=<<table title="org.junit.rules.TestRule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" href="http://junit.org/apidocs/org/junit/rules/TestRule.html">
+	c43 [label=<<table title="org.junit.rules.TestRule" border="0" cellborder="1" cellspacing="0" cellpadding="2" port="p" href="http://junit.org/apidocs/org/junit/rules/TestRule.html">
 		<tr><td><table border="0" cellspacing="0" cellpadding="1">
 <tr><td align="center" balign="center"> &#171;interface&#187; </td></tr>
 <tr><td align="center" balign="center"> org.junit.rules.TestRule </td></tr>
